@@ -1,6 +1,6 @@
 /*
    1-bit boolean vectors for R
-   Copyright 2008 Jens Oehlschl‰gel
+   Copyright 2008 Jens Oehlschl√§gel
 */
 
 #include <R.h>

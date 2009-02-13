@@ -16,7 +16,7 @@
 #! coercion from and to logicals, integers and integer subscripts;
 #! fast boolean operators and fast summary statistics. \cr
 #!
-#! With bit vectors you can store true binary booleans {FALSE,TRUE} at the expense
+#! With bit vectors you can store true binary booleans \{FALSE,TRUE\} at the expense
 #! of 1 bit only, on a 32 bit architecture this means factor 32 less RAM and
 #! factor 32 more speed on boolean operations. With this speed gain it even
 #! pays-off to convert to bit in order to avoid a single boolean operation on
