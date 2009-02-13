@@ -1,10 +1,10 @@
 Package: bit
 Type: Package
 Title: A class for vectors of 1-bit booleans
-Version: 1.0
-Date: 2008-09-29
-Author: Jens Oehlschlägel <Jens.Oehlschlaegel@truecluster.com>
-Maintainer: Jens Oehlschlägel <Jens.Oehlschlaegel@truecluster.com>
+Version: 1.0-1
+Date: 2009-02-13
+Author: Jens Oehlschlägel
+Maintainer: Jens Oehlschlägel <oehl_list@gmx.de>
 Description: bitmapped vectors of booleans (no NAs), 
   coercion from and to logicals, integers and integer subscripts; 
   fast boolean operators and fast summary statistics. 
@@ -24,4 +24,4 @@ Description: bitmapped vectors of booleans (no NAs),
 License: GPL-2
 LazyLoad: yes
 Encoding: latin1
-Packaged: Wed Oct  8 20:20:10 2008; Jens Oehlschlaegel
+Packaged: Fri Feb 13 14:36:12 2009; ripley

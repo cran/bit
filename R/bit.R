@@ -233,8 +233,9 @@
 #!   }
 #! }
 
-.BITS <- 8L * .Machine$sizeof.pointer
-
+## 64-bit systems have 32-bit integers
+##.BITS <- 8L * .Machine$sizeof.pointer
+.BITS <-32
 
 
 #! \name{bit_init}
