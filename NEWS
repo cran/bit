@@ -1,3 +1,21 @@
+    CHANGES IN bit VERSION 1.1.1
+
+USER VISIBLE CHANGES
+
+    o Function 'chunk' has been made generic, the default method
+      provides the previous behavior.
+
+    o New method to increase length of bitwhich objects.
+
+    o Added further coercion methods.
+      provides the previous behavior.
+
+
+BUG FIXES
+    o as.bitwhich.ri now generates correct negative subscripts.
+
+
+
     CHANGES IN bit VERSION 1.1.0
 
 

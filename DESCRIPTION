@@ -1,10 +1,11 @@
 Package: bit
 Type: Package
 Title: A class for vectors of 1-bit booleans
-Version: 1.1.0
+Version: 1.1-1
 Date: 2009-07-07
-Author: Jens Oehlschlägel <Jens.Oehlschlaegel@truecluster.com>
-Maintainer: Jens Oehlschlägel <Jens.Oehlschlaegel@truecluster.com>
+Author: Jens Oehlschl\xE4gel <Jens.Oehlschlaegel@truecluster.com>
+Maintainer: Jens Oehlschl\xE4gel <Jens.Oehlschlaegel@truecluster.com>
+Depends: R (>= 2.9.2)
 Description: bitmapped vectors of booleans (no NAs), coercion from and
         to logicals, integers and integer subscripts; fast boolean
         operators and fast summary statistics. With 'bit' vectors you
@@ -26,11 +27,13 @@ Description: bitmapped vectors of booleans (no NAs), coercion from and
         package now contains further classes for representing logical
         selections: 'bitwhich' for very skewed selections and 'ri' for
         selecting ranges of values for chunked processing. All three
-        index classes can be used for subsetting 'ff' objects (ff-2.1.0
+        index classes can be used for subsetting 'ff' objects (ff-2.1-0
         and higher).
 License: GPL-2
 LazyLoad: yes
 Encoding: latin1
-Packaged: 2009-07-23 20:00:38 UTC; Jens Oehlschlaegel
 Repository: CRAN
-Date/Publication: 2009-07-24 06:04:28
+Repository/R-Forge/Project: ff
+Repository/R-Forge/Revision: 8
+Date/Publication: 2009-10-11 14:38:14
+Packaged: 2009-10-09 20:11:04 UTC; rforge
