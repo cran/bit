@@ -19,7 +19,9 @@
   \item{value}{ new logical or integer values }
 }
 \details{
-  Since this package was created for high performance purposes, only positive integer subscripts are allowed.
+  Since this package was created for high performance purposes, only positive integer subscripts make sense.
+  Negative subscripts are converted to positive ones, beware the RAM consumption.
+  Further subscript classes allowed for '[' and '[<-' are range indices \code{\link{ri}} and \code{\link{bitwhich}}.
   The '[' and '[<-' methods don't check whether the subscripts are positive integers in the allowed range.
 }
 \value{
@@ -32,6 +34,9 @@
   x <- as.bit(c(FALSE, NA, TRUE))
   x[] <- c(FALSE, NA, TRUE)
   x[1:2]
+  x[-3]
+  x[ri(1,2)]
+  x[as.bitwhich(c(TRUE,TRUE,FALSE))]
   x[[1]]
   x[] <- TRUE
   x[1:2] <- FALSE

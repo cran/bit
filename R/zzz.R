@@ -1,9 +1,12 @@
 .First.lib <- function(lib, pkg) {
   library.dynam("bit", pkg, lib)
   bit_init()
-  cat("package:bit (c) 2008 Jens Oehlschlaegel (GPL-2)\n")
-  cat("creator: bit\n")
-  cat("methods: as.bit as.bit.which which.bit as.logical as.integer length length<- print [ [<- [[ [[<- ! & | xor != == any all sum\n")
+  cat("package:bit (c) 2008/2009 Jens Oehlschlaegel (GPL-2)\n")
+  cat("creators: bit bitwhich\n")
+  cat("coercion: as.logical as.integer as.bit as.bitwhich which\n")
+  cat("operator: ! & | xor != == \n")
+  cat("querying: print length any all min max range sum summary\n")
+  cat("bit access: length<- [ [<- [[ [[<-\n")
   cat("for more help type ?bit\n")
 }
 

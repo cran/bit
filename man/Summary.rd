@@ -6,22 +6,51 @@
 \alias{range.bit}
 \alias{sum.bit}
 \alias{summary.bit}
+\alias{all.bitwhich}
+\alias{any.bitwhich}
+\alias{min.bitwhich}
+\alias{max.bitwhich}
+\alias{range.bitwhich}
+\alias{sum.bitwhich}
+\alias{summary.bitwhich}
+\alias{all.ri}
+\alias{any.ri}
+\alias{min.ri}
+\alias{max.ri}
+\alias{range.ri}
+\alias{sum.ri}
+\alias{summary.ri}
 \title{ Summaries of bit vectors }
 \description{
   Fast aggregation functions for bit vectors.
 }
 \usage{
-\method{all}{bit}(x, \dots)
-\method{any}{bit}(x, \dots)
-\method{min}{bit}(x, \dots)
-\method{max}{bit}(x, \dots)
-\method{range}{bit}(x, \dots)
-\method{sum}{bit}(x, \dots)
-\method{summary}{bit}(object, \dots)
+\method{all}{bit}(x, range = NULL, \dots)
+\method{any}{bit}(x, range = NULL, \dots)
+\method{min}{bit}(x, range = NULL, \dots)
+\method{max}{bit}(x, range = NULL, \dots)
+\method{range}{bit}(x, range = NULL, \dots)
+\method{sum}{bit}(x, range = NULL, \dots)
+\method{summary}{bit}(object, range = NULL, \dots)
+\method{all}{bitwhich}(x, \dots)
+\method{any}{bitwhich}(x, \dots)
+\method{min}{bitwhich}(x, \dots)
+\method{max}{bitwhich}(x, \dots)
+\method{range}{bitwhich}(x, \dots)
+\method{sum}{bitwhich}(x, \dots)
+\method{summary}{bitwhich}(object, \dots)
+\method{all}{ri}(x, \dots)
+\method{any}{ri}(x, \dots)
+\method{min}{ri}(x, \dots)
+\method{max}{ri}(x, \dots)
+\method{range}{ri}(x, \dots)
+\method{sum}{ri}(x, \dots)
+\method{summary}{ri}(object, \dots)
 }
 \arguments{
-  \item{x}{ an object of class bit, logical or integer }
+  \item{x}{ an object of class bit or bitwhich }
   \item{object}{ an object of class bit }
+  \item{range}{ NULL or a vector with two elements indicating first and last position to be analyzed }
   \item{\dots}{ formally required but not used }
 }
 \details{
@@ -35,6 +64,15 @@
 \seealso{ \code{\link{bit}}, \code{\link{all}}, \code{\link{any}}, \code{\link{min}}, \code{\link{max}}, \code{\link{range}}, \code{\link{sum}}, \code{\link{summary}} }
 \examples{
   x <- as.bit(c(TRUE, TRUE))
+  all(x)
+  any(x)
+  min(x)
+  max(x)
+  range(x)
+  sum(x)
+  summary(x)
+
+  x <- as.bitwhich(c(TRUE, TRUE))
   all(x)
   any(x)
   min(x)

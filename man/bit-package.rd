@@ -24,6 +24,14 @@ work with pre-allocated memory for return values by calling .Call() directly:
 when evaluating the speed of C-access with pre-allocated vector memory, coping
 from bit to logical requires only 70% of the time for copying from logical to
 logical; and copying from logical to bit comes at a performance penalty of 150%. \cr
+
+Since bit objects cannot be used as subsripts in R, a second class 'bitwhich'
+allows to store selections as efficiently as possible with standard R types.
+This is usefull either to represent parts of bit objects or to represent
+very asymetric selections.  \cr
+
+Class 'ri' (range index) allows to select ranges of positions for  chunked processing:
+all three classes 'bit', 'bitwhich' and 'ri' can be used for subsetting 'ff' objects (ff-2.1.0 and higher).
 }
 \usage{
  bit(length)
@@ -38,50 +46,59 @@ logical; and copying from logical to bit comes at a performance penalty of 150%.
 \tabular{ll}{
    Package: \tab bit\cr
    Type: \tab Package\cr
-   Version: \tab 1.0\cr
-   Date: \tab 2008-09-13\cr
+   Version: \tab 1.1.0\cr
+   Date: \tab 2009-07-07\cr
    License: \tab GPL-2\cr
    LazyLoad: \tab yes\cr
    Encoding: \tab latin1\cr
-   Built: \tab R 2.7.2; i386-pc-mingw32; 2008-09-22 13:53:55; windows\cr
 }
 
 Index:
-\tabular{rrl}{
-   \bold{function}               \tab \bold{see also}            \tab \bold{description} \cr
-   \code{.BITS}                  \tab \code{\link{globalenv}}    \tab variable holding number of bits on this system \cr
-   \code{\link{bit_init}}        \tab \code{\link{.First.lib}}   \tab initially allocate bit-masks (done in .First.lib) \cr
-   \code{\link{bit_done}}        \tab \code{\link{.Last.lib}}    \tab finally de-allocate bit-masks (done in .Last.lib) \cr
-   \code{\link{bit}}             \tab \code{\link{logical}}      \tab create bit vector \cr
-   \code{\link{print.bit}}       \tab \code{\link{print}}        \tab print bit vector \cr
-   \code{\link{length.bit}}      \tab \code{\link{length}}       \tab get length of bit vector \cr
-   \code{\link{length<-.bit}}    \tab \code{\link{length<-}}     \tab change length of bit vector \cr
-   \code{\link{is.bit}}          \tab \code{\link{is.logical}}   \tab test for bit vector \cr
-   \code{\link{as.bit}}          \tab \code{\link{as.logical}}   \tab generically coerce to bit vector \cr
-   \code{\link{as.bit.logical}}  \tab                            \tab coerce logical to bit vector (FALSE => FALSE, c(NA, TRUE) => TRUE) \cr
-   \code{\link{as.bit.integer}}  \tab                            \tab coerce integer to bit vector (0 => FALSE, ELSE => TRUE) \cr
-   \code{\link{as.bit.which}}    \tab                            \tab coerce integer subscripts to bit vector (TRUE at positive positions resp. FALSE at negative positions) \cr
-   \code{\link{as.logical.bit}}  \tab \code{\link{as.logical}}   \tab coerce bit vector to logical (FALSE/TRUE) \cr
-   \code{\link{as.integer.bit}}  \tab \code{\link{as.integer}}   \tab coerce bit vector to integer (0/1) \cr
-   \code{\link{which.bit}}       \tab \code{\link[base]{which}}        \tab coerce bit vector to integer subscripts (positive or negative positions) \cr
-   \code{\link{!.bit}}           \tab \code{\link{!}}            \tab boolean NOT \cr
-   \code{\link{&.bit}}           \tab \code{\link{&}}            \tab boolean AND \cr
-   \code{\link{|.bit}}           \tab \code{\link{|}}            \tab boolean OR \cr
-   \code{\link{xor.bit}}         \tab \code{\link{xor}}          \tab boolean XOR \cr
-   \code{\link{!=.bit}}          \tab \code{\link{!=}}           \tab boolean unequality (same as XOR) \cr
-   \code{\link{==.bit}}          \tab \code{\link{==}}           \tab boolean equality \cr
-   \code{\link{[[.bit}}          \tab \code{\link{[[}}           \tab get single bit (index checked) \cr
-   \code{\link{[[<-.bit}}        \tab \code{\link{[[<-}}         \tab set single bit (index checked) \cr
-   \code{\link{[.bit}}           \tab \code{\link{[}}            \tab get vector of bits (unchecked) \cr
-   \code{\link{[<-.bit}}         \tab \code{\link{[<-}}          \tab set vector of bits (unchecked) \cr
-   \code{\link{all.bit}}         \tab \code{\link{all}}          \tab aggregate AND \cr
-   \code{\link{any.bit}}         \tab \code{\link{any}}          \tab aggregate OR \cr
-   \code{\link{min.bit}}         \tab \code{\link{min}}          \tab aggregate MIN (integer version of ALL) \cr
-   \code{\link{max.bit}}         \tab \code{\link{max}}          \tab aggregate MAX (integer version of ANY) \cr
-   \code{\link{range.bit}}       \tab \code{\link{range}}        \tab aggregate [MIN,MAX] \cr
-   \code{\link{sum.bit}}         \tab \code{\link{sum}}          \tab aggregate SUM (count of TRUE) \cr
-   \code{\link{summary.bit}}     \tab \code{\link{tabulate}}     \tab aggregate count of FALSE and TRUE \cr
-   \code{\link{regtest.bit}}     \tab                            \tab regressiontests for the package \cr
+\tabular{rrrrl}{
+   \bold{bit function}           \tab \bold{bitwhich function}          \tab \bold{ri function}                \tab \bold{see also}          \tab \bold{description} \cr
+   \code{.BITS}                  \tab                                   \tab                                   \tab \code{\link{globalenv}}   \tab variable holding number of bits on this system \cr
+   \code{\link{bit_init}}        \tab                                   \tab                                   \tab \code{\link{.First.lib}}  \tab initially allocate bit-masks (done in .First.lib) \cr
+   \code{\link{bit_done}}        \tab                                   \tab                                   \tab \code{\link{.Last.lib}}   \tab finally de-allocate bit-masks (done in .Last.lib) \cr
+   \code{\link{bit}}             \tab \code{\link{bitwhich}}            \tab \code{\link{ri}}                  \tab \code{\link{logical}}     \tab create bit object \cr
+   \code{\link{print.bit}}       \tab \code{\link{print.bitwhich}}      \tab \code{\link{print.ri}}            \tab \code{\link{print}}       \tab print bit vector \cr
+   \code{\link{length.bit}}      \tab \code{\link{length.bitwhich}}     \tab \code{\link{length.ri}}           \tab \code{\link{length}}      \tab get length of bit vector \cr
+   \code{\link{length<-.bit}}    \tab                                   \tab                                   \tab \code{\link{length<-}}    \tab change length of bit vector \cr
+   \code{\link{c.bit}}           \tab \code{\link{c.bitwhich}}          \tab                                   \tab \code{\link{c}}           \tab concatenate bit vectors \cr
+   \code{\link{is.bit}}          \tab \code{\link{is.bitwhich}}         \tab \code{\link{is.ri}}               \tab \code{\link{is.logical}}  \tab test for bit class \cr
+   \code{\link{as.bit}}          \tab \code{\link{as.bitwhich}}         \tab                                   \tab \code{\link{as.logical}}  \tab generically coerce to bit or bitwhich \cr
+   \code{\link{as.bit.logical}}  \tab \code{\link{as.bitwhich.logical}} \tab                                   \tab \code{\link{logical}}     \tab coerce logical to bit vector (FALSE => FALSE, c(NA, TRUE) => TRUE) \cr
+   \code{\link{as.bit.integer}}  \tab \code{\link{as.bitwhich.integer}} \tab                                   \tab \code{\link{integer}}     \tab coerce integer to bit vector (0 => FALSE, ELSE => TRUE) \cr
+   \code{\link{as.bit.double}}   \tab \code{\link{as.bitwhich.double}}  \tab                                   \tab \code{\link{double}}      \tab coerce double to bit vector (0 => FALSE, ELSE => TRUE) \cr
+   \code{\link{as.double.bit}}   \tab \code{\link{as.double.bitwhich}}  \tab                                   \tab \code{\link{as.double}}   \tab coerce bit vector to double (0/1) \cr
+   \code{\link{as.integer.bit}}  \tab \code{\link{as.integer.bitwhich}} \tab                                   \tab \code{\link{as.integer}}  \tab coerce bit vector to integer (0L/1L) \cr
+   \code{\link{as.logical.bit}}  \tab \code{\link{as.logical.bitwhich}} \tab                                   \tab \code{\link{as.logical}}  \tab coerce bit vector to logical (FALSE/TRUE) \cr
+   \code{\link{as.which.bit}}    \tab \code{\link{as.which.bitwhich}}   \tab                                   \tab \code{\link{as.which}}    \tab coerce bit vector to positive integer subscripts\cr
+   \code{\link{as.bit.which}}    \tab \code{\link{as.bitwhich.which}}   \tab                                   \tab \code{\link{bitwhich}}    \tab coerce integer subscripts to bit vector \cr
+   \code{\link{as.bit.bitwhich}} \tab \code{\link{as.bitwhich.bitwhich}}\tab                                   \tab                           \tab coerce from bitwhich  \cr
+   \code{\link{as.bit.bit}}      \tab \code{\link{as.bitwhich.bit}}     \tab                                   \tab \code{\link{UseMethod}}   \tab coerce from bit \cr
+   \code{\link{as.bit.ri}}       \tab \code{\link{as.bitwhich.ri}}      \tab                                   \tab                           \tab coerce from range index \cr
+   \code{\link[ff]{as.bit.ff}}   \tab                                   \tab                                   \tab \code{\link[ff]{ff}}      \tab coerce ff boolean to bit vector \cr
+   \code{\link[ff]{as.ff.bit}}   \tab                                   \tab                                   \tab \code{\link[ff]{as.ff}}   \tab coerce bit vector to ff boolean \cr
+   \code{\link[ff]{as.hi.bit}}   \tab \code{\link[ff]{as.hi.bitwhich}}  \tab \code{\link[ff]{as.hi.ri}}        \tab \code{\link[ff]{as.hi}}   \tab coerce to hybrid index (requires package ff) \cr
+   \code{\link[ff]{as.bit.hi}}   \tab \code{\link[ff]{as.bitwhich.hi}}  \tab                                   \tab                           \tab coerce from hybrid index (requires package ff) \cr
+   \code{\link{[[.bit}}          \tab                                   \tab                                   \tab \code{\link{[[}}          \tab get single bit (index checked) \cr
+   \code{\link{[[<-.bit}}        \tab                                   \tab                                   \tab \code{\link{[[<-}}        \tab set single bit (index checked) \cr
+   \code{\link{[.bit}}           \tab                                   \tab                                   \tab \code{\link{[}}           \tab get vector of bits (unchecked) \cr
+   \code{\link{[<-.bit}}         \tab                                   \tab                                   \tab \code{\link{[<-}}         \tab set vector of bits (unchecked) \cr
+   \code{\link{!.bit}}           \tab \code{\link{!.bitwhich}}          \tab (works as second arg in           \tab \code{\link{!}}           \tab boolean NOT on bit \cr
+   \code{\link{&.bit}}           \tab \code{\link{&.bitwhich}}          \tab  bit and bitwhich ops)            \tab \code{\link{&}}           \tab boolean AND on bit \cr
+   \code{\link{|.bit}}           \tab \code{\link{|.bitwhich}}          \tab                                   \tab \code{\link{|}}           \tab boolean OR on bit \cr
+   \code{\link{xor.bit}}         \tab \code{\link{xor.bitwhich}}        \tab                                   \tab \code{\link{xor}}         \tab boolean XOR on bit \cr
+   \code{\link{!=.bit}}          \tab \code{\link{!=.bitwhich}}         \tab                                   \tab \code{\link{!=}}          \tab boolean unequality (same as XOR) \cr
+   \code{\link{==.bit}}          \tab \code{\link{==.bitwhich}}         \tab                                   \tab \code{\link{==}}          \tab boolean equality \cr
+   \code{\link{all.bit}}         \tab \code{\link{all.bitwhich}}        \tab \code{\link{all.ri}}              \tab \code{\link{all}}         \tab aggregate AND \cr
+   \code{\link{any.bit}}         \tab \code{\link{any.bitwhich}}        \tab \code{\link{any.ri}}              \tab \code{\link{any}}         \tab aggregate OR \cr
+   \code{\link{min.bit}}         \tab \code{\link{min.bitwhich}}        \tab \code{\link{min.ri}}              \tab \code{\link{min}}         \tab aggregate MIN (first TRUE position) \cr
+   \code{\link{max.bit}}         \tab \code{\link{max.bitwhich}}        \tab \code{\link{max.ri}}              \tab \code{\link{max}}         \tab aggregate MAX (last TRUE position) \cr
+   \code{\link{range.bit}}       \tab \code{\link{range.bitwhich}}      \tab \code{\link{range.ri}}            \tab \code{\link{range}}       \tab aggregate [MIN,MAX] \cr
+   \code{\link{sum.bit}}         \tab \code{\link{sum.bitwhich}}        \tab \code{\link{sum.ri}}              \tab \code{\link{sum}}         \tab aggregate SUM (count of TRUE) \cr
+   \code{\link{summary.bit}}     \tab \code{\link{summary.bitwhich}}    \tab \code{\link{summary.ri}}          \tab \code{\link{tabulate}}    \tab aggregate c(nFALSE, nTRUE, minRange, maxRange) \cr
+   \code{\link{regtest.bit}}     \tab                                   \tab                                   \tab                           \tab regressiontests for the package \cr
  }
 }
 \value{
@@ -94,8 +111,8 @@ Jens Oehlschlägel <Jens.Oehlschlaegel@truecluster.com>
 Maintainer: Jens Oehlschlägel <Jens.Oehlschlaegel@truecluster.com>
 }
 \note{
-  Since this package was created for high performance purposes, only positive integer subscripts are allowed.
-  The '[' and '[<-' methods don't check whether the subscripts are positive integers in the allowed range.
+  Since this package was created for high performance purposes, only positive integer subscripts are allowed:
+  The '[.bit' and '[<-.bit' methods don't check whether the subscripts are positive integers in the allowed range.
   All R-functions behave as expected - i.e. they do not change their arguments and create new return values.
   If you want to save the time for return value memory allocation, you must use \code{\link{.Call}} directly
   (see the dontrun example in \code{\link{sum.bit}}).
@@ -116,7 +133,7 @@ Maintainer: Jens Oehlschlägel <Jens.Oehlschlaegel@truecluster.com>
   x[[2]] <- TRUE                               # replace single element
   x[1:2]                                       # extract parts of bit vector
   x[1:2] <- TRUE                               # replace parts of bit vector
-  which(x)                                     # coerce bit to subscripts
+  as.which(x)                                  # coerce bit to subscripts
   x <- as.bit.which(3:4, 4)                    # coerce subscripts to bit
   as.logical(x)                                # coerce bit to logical
   y <- as.bit(c(FALSE, TRUE, FALSE, TRUE))     # coerce logical to bit
@@ -157,7 +174,7 @@ Maintainer: Jens Oehlschlägel <Jens.Oehlschlaegel@truecluster.com>
      x <- as.bit.which(x, n)
      y <- as.bit.which(y, n)
     })
-    system.time( which.bit( x | y ) )
+    system.time( as.which.bit( x | y ) )
     cat("Even more so if multiple operations are needed :-)\n")
 
     cat("\nSome timings WITH memory allocation\n")
@@ -213,7 +230,7 @@ Maintainer: Jens Oehlschlägel <Jens.Oehlschlaegel@truecluster.com>
     })/100
 
     cat("\nSome timings WITHOUT memory allocation (Serge, that's for you)\n")
-    n <- 2000000
+    n <- 2000000L
     l <- sample(c(FALSE, TRUE), n, TRUE)
     b <- as.bit(l)
     # read from logical, write to logical
@@ -221,9 +238,9 @@ Maintainer: Jens Oehlschlägel <Jens.Oehlschlaegel@truecluster.com>
     system.time(for(i in 1:100).Call("R_filter_getset", l, l2, PACKAGE="bit")) / 100
     # read from bit, write to logical
     l2 <- logical(n)
-    system.time(for(i in 1:100).Call("R_bit_get", b, l2, PACKAGE="bit")) / 100
+    system.time(for(i in 1:100).Call("R_bit_get", b, l2, c(1L, n), PACKAGE="bit")) / 100
     # read from logical, write to bit
-    system.time(for(i in 1:100).Call("R_bit_set", b, l2, PACKAGE="bit")) / 100
+    system.time(for(i in 1:100).Call("R_bit_set", b, l2, c(1L, n), PACKAGE="bit")) / 100
 
   }
 }
