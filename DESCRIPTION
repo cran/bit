@@ -1,7 +1,7 @@
 Package: bit
 Type: Package
 Title: A class for vectors of 1-bit booleans
-Version: 1.1-1
+Version: 1.1-2
 Date: 2009-07-07
 Author: Jens Oehlschl\xE4gel <Jens.Oehlschlaegel@truecluster.com>
 Maintainer: Jens Oehlschl\xE4gel <Jens.Oehlschlaegel@truecluster.com>
@@ -31,9 +31,10 @@ Description: bitmapped vectors of booleans (no NAs), coercion from and
         and higher).
 License: GPL-2
 LazyLoad: yes
+URL: http://ff.r-forge.r-project.org/
 Encoding: latin1
 Repository: CRAN
 Repository/R-Forge/Project: ff
-Repository/R-Forge/Revision: 8
-Date/Publication: 2009-10-11 14:38:14
-Packaged: 2009-10-09 20:11:04 UTC; rforge
+Repository/R-Forge/Revision: 16
+Date/Publication: 2009-10-26 19:26:39
+Packaged: 2009-10-25 21:08:26 UTC; rforge
