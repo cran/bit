@@ -7,7 +7,7 @@
 }
 \usage{
 chunk(\dots)
-\method{chunk}{default}(from = NULL, to = NULL, by = NULL, length.out = NULL, along.with = NULL, overlap = 0L, method = c("bbatch", "seq"), \dots)
+\method{chunk}{default}(from = NULL, to = NULL, by = NULL, length.out = NULL, along.with = NULL, overlap = 0L, method = c("bbatch", "seq"), maxindex = NA, \dots)
 }
 \arguments{
   \item{from}{ the starting value of the sequence. }
@@ -17,10 +17,14 @@ chunk(\dots)
   \item{along.with}{ take the length from the length of this argument. }
   \item{overlap}{ number of values to overlap (will lower the starting value of the sequence, the first range becomes smaller }
   \item{method}{ default 'bbatch' will try to balance the chunk size, see \code{\link{bbatch}}, 'seq' will create chunks like \code{\link[base]{seq}} }
+  \item{maxindex}{ passed to \code{\link{ri}} }
   \item{\dots}{ ignored }
 }
 \details{
   \code{chunk} is generic, the default method is described here, other methods that automatically consider RAM needs are provided with package 'ff', see for example \code{\link[ff]{chunk.ffdf}}
+}
+\section{available methods}{
+  \code{chunk.default}, \code{\link[ff]{chunk.bit}}, \code{\link[ff]{chunk.ff_vector}}, \code{\link[ff]{chunk.ffdf}}
 }
 \value{
   \code{chunk.default} returns a list of \code{\link{ri}} objects representing chunks of subscripts
