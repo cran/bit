@@ -22,8 +22,8 @@ Reading from and writing to bit is approximately as fast as accessing standard
 logicals - mostly due to R's time for memory allocation. The package allows to
 work with pre-allocated memory for return values by calling .Call() directly:
 when evaluating the speed of C-access with pre-allocated vector memory, coping
-from bit to logical requires only 70% of the time for copying from logical to
-logical; and copying from logical to bit comes at a performance penalty of 150%. \cr
+from bit to logical requires only 70\% of the time for copying from logical to
+logical; and copying from logical to bit comes at a performance penalty of 150\%. \cr
 
 Since bit objects cannot be used as subsripts in R, a second class 'bitwhich'
 allows to store selections as efficiently as possible with standard R types.
@@ -164,7 +164,8 @@ Maintainer: Jens Oehlschlägel <Jens.Oehlschlaegel@truecluster.com>
        x <- as.bit(x)
        y <- as.bit(y)
     })
-    system.time( x | y )
+    system.time( z <- x | y )
+    system.time( as.logical(z) )
     cat("Even more so if multiple operations are needed :-)\n")
 
     cat("\nEven for a single set operation transforming subscripts to bit pays off\n")
@@ -199,6 +200,14 @@ Maintainer: Jens Oehlschlägel <Jens.Oehlschlaegel@truecluster.com>
        l2 <- as.logical(b)
        rm(l2)
     })/100
+    # copy bit to bit
+    b <- as.bit(l)
+    system.time(for(i in 1:100){  # 0.009
+       b2 <- b
+       b2[1] <- TRUE   # force new memory allocation (copy on modify)
+       rm(b2)
+    })/100
+
 
     l2 <- l
     # replace logical by TRUE

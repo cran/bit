@@ -7,7 +7,7 @@
 # xx explore/write Ops.bit Ops.bitwhich
 
 
-# source("D:/mwp/eanalysis/bit/R/bit.R")
+# source("C:/mwp/eanalysis/bit/R/bit.R")
 
 #! \name{bit-package}
 #! \alias{bit-package}
@@ -33,8 +33,8 @@
 #! logicals - mostly due to R's time for memory allocation. The package allows to
 #! work with pre-allocated memory for return values by calling .Call() directly:
 #! when evaluating the speed of C-access with pre-allocated vector memory, coping
-#! from bit to logical requires only 70% of the time for copying from logical to
-#! logical; and copying from logical to bit comes at a performance penalty of 150%. \cr
+#! from bit to logical requires only 70\% of the time for copying from logical to
+#! logical; and copying from logical to bit comes at a performance penalty of 150\%. \cr
 #!
 #! Since bit objects cannot be used as subsripts in R, a second class 'bitwhich'
 #! allows to store selections as efficiently as possible with standard R types.
@@ -175,7 +175,8 @@
 #!        x <- as.bit(x)
 #!        y <- as.bit(y)
 #!     })
-#!     system.time( x | y )
+#!     system.time( z <- x | y )
+#!     system.time( as.logical(z) )
 #!     cat("Even more so if multiple operations are needed :-)\n")
 #!
 #!     cat("\nEven for a single set operation transforming subscripts to bit pays off\n")
@@ -210,6 +211,14 @@
 #!        l2 <- as.logical(b)
 #!        rm(l2)
 #!     })/100
+#!     # copy bit to bit
+#!     b <- as.bit(l)
+#!     system.time(for(i in 1:100){  # 0.009
+#!        b2 <- b
+#!        b2[1] <- TRUE   # force new memory allocation (copy on modify)
+#!        rm(b2)
+#!     })/100
+#!
 #!
 #!     l2 <- l
 #!     # replace logical by TRUE
@@ -320,11 +329,16 @@ bit <- function(length){
   # tuning
   p <- list()
   v <- list()
-  attributes(p) <- list(vmode="boolean", class="physical")
-  attributes(v) <- list(Length=length, class="virtual")
-  attributes(x) <- list(physical=p, virtual=v, class="bit")
+  #attributes(p) <- list(vmode="boolean", class="physical")
+  #attributes(v) <- list(Length=length, class="virtual")
+  #attributes(x) <- list(physical=p, virtual=v, class="bit")
+  setattributes(p, list(vmode="boolean", class="physical"))
+  setattributes(v, list(Length=length, class="virtual"))
+  setattributes(x, list(physical=p, virtual=v, class="bit"))
   x
 }
+
+
 
 print.bit <- function(x, ...){
   n <- length(x)
@@ -391,9 +405,12 @@ bitwhich <- function(maxindex, poslength=NULL, x=NULL){
   }else{
     poslength <- as.integer(poslength)
   }
-  attr(x, "maxindex") <- as.integer(maxindex)
-  attr(x, "poslength") <- poslength
+  #attr(x, "maxindex") <- as.integer(maxindex)
+  #attr(x, "poslength") <- poslength
+  # NOTE: here we want one (1) copy of x to not modify argument x
   class(x) <- "bitwhich"
+  setattr(x, "maxindex", as.integer(maxindex))
+  setattr(x, "poslength", poslength)
   x
 }
 
@@ -586,15 +603,22 @@ length.bit <- function(x)
     }else{
       n <- value %/% .BITS
     }
-    pattr <- physical(x)
-    vattr <- virtual(x)
-    cl <- class(x)
-    x <- unclass(x)
+    #pattr <- physical(x)
+    #vattr <- virtual(x)
+    pattr <- attr(x, "physical")
+    vattr <- attr(x, "virtual")
+    cl <- oldClass(x)
+    #x <- unclass(x)
+    setattr(x, "class", NULL)
     length(x) <- n
-    vattr$Length <- value
-    physical(x) <- pattr
-    virtual(x) <- vattr
-    class(x) <- cl
+    #vattr$Length <- value
+    setattr(vattr, "Length", value)
+    #physical(x) <- pattr
+    #virtual(x) <- vattr
+    #class(x) <- cl
+    setattr(x, "physical", pattr)
+    setattr(x, "virtual", vattr)
+    setattr(x, "class", cl)
     x
   }else
     x
@@ -609,7 +633,8 @@ length.bitwhich <- function(x)
     value <- as.integer(value)
     if (is.integer(x)){
       cl <- oldClass(x)
-      oldClass(x) <- NULL
+      #oldClass(x) <- NULL
+      setattr(x, "class", NULL)
       if (x[1]>0){
         x <- x[x <= value]
         l <- length(x)
@@ -619,7 +644,8 @@ length.bitwhich <- function(x)
           x <- TRUE
         else if (l>(value%/%2L))
           x <- -as.integer(seq.int(length=value))[-x]
-        attr(x, "poslength") <- l
+        #attr(x, "poslength") <- l
+        setattr(x, "poslength", l)
       }else{
         x <- x[x >= -value]
         l <- length(x)
@@ -629,16 +655,22 @@ length.bitwhich <- function(x)
           x <- FALSE
         else if (!((value-l)>(value%/%2L)))
           x <- -as.integer(seq.int(length=value))[-x]
-        attr(x, "poslength") <- value - l
+        #attr(x, "poslength") <- value - l
+        setattr(x, "poslength", value - l)
       }
-      oldClass(x) <- cl
+      #oldClass(x) <- cl
+      setattr(x, "class", cl)
     }else if(x){
-      attr(x, "poslength") <- value
+      #attr(x, "poslength") <- value
+      setattr(x, "poslength", value)
     }
-    attr(x, "maxindex") <- value
+    #attr(x, "maxindex") <- value
+    setattr(x, "maxindex", value)
   }
   x
 }
+
+
 
 
 
@@ -946,13 +978,15 @@ as.double.ri <- function(x, ...){
 
 as.which.default <- function(x, ...){
   ret <- which(x)
-  class(ret) <- "which"
+  #class(ret) <- "which"
+  setattr(ret, "class", "which")
   ret
 }
 
 as.which.ri <- function(x, ...){
   ret <- x[1]:x[2]
-  class(ret) <- "which"
+  #class(ret) <- "which"
+  setattr(ret, "class", "which")
   ret
 }
 
@@ -972,7 +1006,8 @@ as.which.bit <- function(x, range=NULL, ...){
     x <- as.integer(seq.int(range[1], range[2], by=1))
   }else
     x <- .Call("R_bit_which", x, s, range, negative=FALSE, PACKAGE="bit")
-  class(x) <- "which"
+  #class(x) <- "which"
+  setattr(x, "class", "which")
   x
 }
 
@@ -989,7 +1024,8 @@ as.which.bitwhich <- function(x, ...){
       attributes(x) <- NULL
     }
   }
-  class(x) <- "which"
+  #class(x) <- "which"
+  setattr(x, "class", "which")
   x
 }
 
@@ -1575,8 +1611,8 @@ xor.bitwhich(e1, e2)
 #!     n <- .Machine$integer.max
 #!     x <- !bit(n)
 #!     N <- 1000000L  # batchsize
-#!     B <- n %/% N   # number of batches
-#!     R <- n %% N    # rest
+#!     B <- n \%/\% N   # number of batches
+#!     R <- n \%\% N    # rest
 #!
 #!     cat("Batched sum (52.5 sec on Centrino duo)\n")
 #!     system.time({
@@ -1891,6 +1927,7 @@ if (FALSE){
     if (is.na(i) || i<1L || i>length(x))
       stop("subscript must be positive integer (or double) within length")
     ret <- logical(1L)
+    setattr(ret, "vmode", "boolean")
     .Call("R_bit_extract", x, i, ret, PACKAGE="bit")
   }else
     stop("subscript must be positive integer (or double) within length")
@@ -1947,15 +1984,17 @@ if (FALSE){
       i <- as.integer(i)
       n <- length(i)
       N <- length(x)
-      if (n==0)
-        return(logical())
-      if (i[1]<0){
-        i <- (as.integer(seq.int(length=N)))[i]
-        ret <- logical(N-n)
+      if (n==0){
+        ret <- logical()
       }else{
-        ret <- logical(length(i))
+        if (i[1]<0){
+          i <- (as.integer(seq.int(length=N)))[i]
+          ret <- logical(N-n)
+        }else{
+          ret <- logical(length(i))
+        }
+        .Call("R_bit_extract", x, i, ret, PACKAGE="bit")
       }
-      .Call("R_bit_extract", x, i, ret, PACKAGE="bit")
     }
   }else if(is.logical(i)){
     if (length(i)!=1 || is.na(i)){
@@ -1966,11 +2005,14 @@ if (FALSE){
         ret <- logical(len)
         .Call("R_bit_get", x, ret, range=c(1L, len), PACKAGE="bit")
       }else{
-        logical()
+        ret <- logical()
       }
     }
   }else
       stop("subscript must be integer (or double) or bitwhich")
+
+  setattr(ret, "vmode", "boolean")
+  ret
 }
 
 
@@ -2012,7 +2054,6 @@ if (FALSE){
         value2 <- logical(length(i))
         value2[] <- value
       }
-      ret <- logical(n)
       .Call("R_bit_replace", x, i, value2, PACKAGE="bit")
     }
   }else if (is.logical(i)){
@@ -2083,7 +2124,8 @@ ri <- function(from, to=NULL, maxindex=NA){
     stop("lower bound must be smaller or equal than upper bound")
   if (!is.na(x[[3]]) && x[[2]]>x[[3]])
     stop("lower and upper bound must be smaller or equal to maxindex")
-  class(x) <- "ri"
+  #class(x) <- "ri"
+  setattr(x, "class", "ri")
   x
 }
 
@@ -2200,7 +2242,10 @@ physical.default <- function(x){
   p
 }
 "physical<-.default" <- function(x, value){
-  attributes(attr(x, "physical")) <- c(value, list(class="physical"))
+  #attributes(attr(x, "physical")) <- c(value, list(class="physical"))
+  p <- list()
+  setattributes(p, c(value, list(class="physical")))
+  setattr(x, "physical", p)
   x
 }
 
@@ -2210,7 +2255,10 @@ virtual.default <- function(x){
   v[is.na(match(names(v), "class"))]
 }
 "virtual<-.default" <- function(x, value){
-  attributes(attr(x, "virtual")) <- c(value, list(class="virtual"))
+  #attributes(attr(x, "virtual")) <- c(value, list(class="virtual"))
+  v <- list()
+  setattributes(v, c(value, list(class="virtual")))
+  setattr(x, "virtual", v)
   x
 }
 
@@ -2331,7 +2379,6 @@ regtest.bit <- function(
     w2 <- as.vector(as.bitwhich(as.bit(l)))
     if (!identical(w,w2)){
       cat("\nregression test difference between which\n")
-      browser()
       print(w)
       cat("and as.which(as.bit.which(which))\n")
       print(w2)
@@ -2374,7 +2421,7 @@ regtest.bit <- function(
     # check extractors
     n2 <- sample(1:n, 1)
     j <- sample(1:n, n2)
-    if (!identical(l[j], b[j])){
+    if (!identical(l[j], unattr(b[j]))){
       cat("\nregression test difference when extracting\n")
       OK <- FALSE
     }
@@ -2382,7 +2429,7 @@ regtest.bit <- function(
     new <- sample(pool, n2, TRUE)
     l[j] <- new
     b[j] <- new
-    if (!identical(l, b[])){
+    if (!identical(l, unattr(b[]))){
       cat("\nregression test difference when replacing with index\n")
       OK <- FALSE
     }
