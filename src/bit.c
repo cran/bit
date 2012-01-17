@@ -26,11 +26,11 @@ void bit_init(int   bits){
   LASTBIT = bits - 1;
   mask0 = calloc(BITS, sizeof(int));
   mask1 = calloc(BITS, sizeof(int));
-  int b = 1;
+  unsigned int b = 1;
   int i;
   for (i=0; i<BITS; i++){
-    mask1[i] = b;
-    mask0[i] = ~b;
+    mask1[i] = (int) b;
+    mask0[i] = (int) ~b;
     //Rprintf("i=%d mask0[i]=%d mask1[i]=%d\n", i, mask0[i], mask1[i]);
     b = b << 1;
   }
@@ -58,8 +58,8 @@ SEXP R_bit_done(){
   NOTE that remaining target bits AFTER the copied area are overwritten with zero
 */
 void bit_shiftcopy(
-  int *bsource /* bit source */
-, int *btarget   /* bit target */
+  unsigned int *bsource /* bit source */
+, unsigned int *btarget   /* bit target */
 , int otarget    /* offset target */
 , int n      /* number of bits to copy */
 ){
@@ -514,8 +514,8 @@ SEXP R_bit_shiftcopy(
 , SEXP otarget_    /* offset target */
 , SEXP n_      /* number of bits to copy */
 ){
-  int *bsource = INTEGER(bsource_);
-  int *btarget = INTEGER(btarget_);
+  unsigned int *bsource = (unsigned int*) INTEGER(bsource_);
+  unsigned int *btarget = (unsigned int*) INTEGER(btarget_);
   int otarget = asInteger(otarget_);
   int n = asInteger(n_);
   bit_shiftcopy(bsource, btarget, otarget, n);
