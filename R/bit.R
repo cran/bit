@@ -1,5 +1,5 @@
 # 1-bit boolean vectors for R
-# (c) 2008-2009 Jens Oehlsch‰gel
+# (c) 2008-2009 Jens Oehlsch√§gel
 # Licence: GPL2
 # Provided 'as is', use at your own risk
 
@@ -8,6 +8,10 @@
 # xx bit_extract should be comlemented with 
 
 # source("C:/mwp/eanalysis/bit/R/bit.R")
+
+# Configuration: set this to 32L or 64L and keep in sync with BITS in bit.c
+.BITS <- 32L
+
 
 #! \name{bit-package}
 #! \alias{bit-package}
@@ -117,21 +121,17 @@
 #!   (but not longer) with an attribute 'n' and class 'bit'
 #! }
 #! \author{
-#! Jens Oehlschl‰gel <Jens.Oehlschlaegel@truecluster.com>
+#! Jens Oehlschl√§gel <Jens.Oehlschlaegel@truecluster.com>
 #!
-#! Maintainer: Jens Oehlschl‰gel <Jens.Oehlschlaegel@truecluster.com>
+#! Maintainer: Jens Oehlschl√§gel <Jens.Oehlschlaegel@truecluster.com>
 #! }
 #! \note{
 #!   Currently operations on bit objects have some overhead from R-calls. Do expect speed gains for vectors
 #!   of length ~ 10000 or longer. \cr
 #!   Since this package was created for high performance purposes, only positive integer subscripts are allowed:
-#!   The '[.bit' and '[<-.bit' methods don't check whether the subscripts are positive integers in the allowed range.
 #!   All R-functions behave as expected - i.e. they do not change their arguments and create new return values.
 #!   If you want to save the time for return value memory allocation, you must use \code{\link{.Call}} directly
 #!   (see the dontrun example in \code{\link{sum.bit}}).
-#!   Note that the package has not been tested under 64 bit.
-#!   Note also that the mapping of NAs to TRUE differs from the mapping of NAs to FALSE
-#!   in \code{\link[ff]{vmode}="boolean"} in package ff (and one of the two may change in the future).
 #! }
 #! \keyword{ package }
 #! \keyword{ classes }
@@ -268,9 +268,6 @@
 #!   }
 #! }
 
-#was wrong because C-code uses int: .BITS <- 8L * .Machine$sizeof.pointer
-.BITS <- 32L
-
 
 
 #! \name{bit_init}
@@ -295,7 +292,7 @@
 #! \value{
 #!   NULL
 #! }
-#! \author{ Jens Oehlschl‰gel }
+#! \author{ Jens Oehlschl√§gel }
 #! \seealso{ \code{\link{bit}}  }
 #! \examples{
 #!   bit_done()
@@ -315,7 +312,6 @@ bit_done <- function()
   .Call("R_bit_done", PACKAGE="bit")
 
 
-
 # creator for empty bit vector
 bit <- function(length){
   length <- as.integer(length)
@@ -323,7 +319,10 @@ bit <- function(length){
     n <- length %/% .BITS + 1L
   else
     n <- length %/% .BITS
-  x <- integer(n)
+  if (.BITS==64L)
+    x <- integer(2L*n)
+  else
+    x <- integer(n)
   #physical(x) <- list(vmode="boolean")
   #virtual(x)  <- list(Length=length)
   #class(x) <- "bit"
@@ -386,7 +385,7 @@ print.bit <- function(x, ...){
 #!    \item unique negative integers to exclude those
 #!   }
 #! }
-#! \author{ Jens Oehlschl‰gel }
+#! \author{ Jens Oehlschl√§gel }
 #! \seealso{ \code{\link{as.bitwhich}}, \code{\link{as.which}}, \code{\link{bit}} }
 #! \examples{
 #!  bitwhich(12, x=c(1,3), poslength=2)
@@ -436,7 +435,7 @@ print.bitwhich <- function(x, ...){
 #! \value{
 #!   TRUE or FALSE
 #! }
-#! \author{ Jens Oehlschl‰gel }
+#! \author{ Jens Oehlschl√§gel }
 #! \seealso{ \code{\link{is.logical}}, \code{\link{bit}}, \code{\link{bitwhich}} }
 #! \examples{
 #!  is.ri(TRUE)
@@ -497,7 +496,7 @@ is.bitwhich <- function(x)
 #! \value{
 #!   the length  A bit vector with the new length
 #! }
-#! \author{ Jens Oehlschl‰gel }
+#! \author{ Jens Oehlschl√§gel }
 #! \seealso{ \code{\link{length}}, \code{\link[=sum.bit]{sum}}, \code{\link[ff]{poslength}}, \code{\link[ff]{maxindex}} }
 #! \examples{
 #!   stopifnot(length(ri(1, 1, 32))==32)
@@ -596,7 +595,7 @@ length.bit <- function(x)
     dn <- value %% .BITS
     if (dn){
       n <- value %/% .BITS + 1L
-      .Call("R_bit_replace", x, (value+1L):(value+dn), logical(dn), FALSE, PACKAGE="bit")
+      .Call("R_bit_replace", x, (value+1L):(value+dn), logical(dn), PACKAGE="bit")
     }else{
       n <- value %/% .BITS
     }
@@ -607,7 +606,10 @@ length.bit <- function(x)
     cl <- oldClass(x)
     #x <- unclass(x)
     attr(x, "class") <- NULL
-    length(x) <- n
+    if (.BITS==64L)
+      length(x) <- 2L*n
+    else
+      length(x) <- n
     #vattr$Length <- value
     attr(vattr, "Length") <- value
     #physical(x) <- pattr
@@ -683,7 +685,7 @@ length.bitwhich <- function(x)
 #! \value{
 #!   An object of class 'bit'
 #! }
-#! \author{ Jens Oehlschl‰gel }
+#! \author{ Jens Oehlschl√§gel }
 #! \seealso{ \code{\link{c}}, \code{\link{bit}} , \code{\link{bitwhich}} }
 #! \examples{
 #!  c(bit(4), bit(4))
@@ -753,7 +755,7 @@ c.bitwhich <- function(...){
 #! \value{
 #!   \code{is.bit} returns FALSE or TRUE, \code{as.bit} returns a vector of class 'bit'
 #! }
-#! \author{ Jens Oehlschl‰gel }
+#! \author{ Jens Oehlschl√§gel }
 #! \seealso{ \code{\link{bit}}, \code{\link[bit:as.logical.bit]{as.logical}} }
 #! \examples{
 #!   x <- as.bit(c(FALSE, NA, TRUE))
@@ -858,7 +860,7 @@ as.bit.ri <- function(x, ...){
 #! \value{
 #!   \code{\link{as.logical}} returns a vector of \code{FALSE, TRUE}, \code{\link{as.integer}} and \code{\link{as.double}} return a vector of \code{0,1}.
 #! }
-#! \author{ Jens Oehlschl‰gel }
+#! \author{ Jens Oehlschl√§gel }
 #! \seealso{ \code{\link{as.bit}}, \code{\link{as.which}}, \code{\link{as.bitwhich}}, \code{\link[ff]{as.ff}}, \code{\link[ff]{as.hi}} }
 #! \examples{
 #!   x <- ri(2, 5, 10)
@@ -951,7 +953,7 @@ as.double.ri <- function(x, ...){
 #! \value{
 #!   a vector of class 'logical' or 'integer'
 #! }
-#! \author{ Jens Oehlschl‰gel }
+#! \author{ Jens Oehlschl√§gel }
 #! \seealso{ \code{\link{as.bit}}, \code{\link{as.logical}}, \code{\link{as.integer}}, \code{\link{as.which}}, \code{\link{as.bitwhich}}, \code{\link[ff]{as.ff}}, \code{\link[ff]{as.hi}} }
 #! \examples{
 #!   r <- ri(5, 20, 100)
@@ -1050,7 +1052,7 @@ as.which.bitwhich <- function(x, ...){
 #! \value{
 #!   a value of class \code{\link{bitwhich}}
 #! }
-#! \author{ Jens Oehlschl‰gel }
+#! \author{ Jens Oehlschl√§gel }
 #! \seealso{ \code{\link{bitwhich}}, \code{\link{as.bit}} }
 #! \examples{
 #!  as.bitwhich(c(FALSE, FALSE, FALSE))
@@ -1270,7 +1272,7 @@ as.logical.bitwhich <- function(x, ...){
 #! \value{
 #!   An object of class 'bit' (or 'bitwhich')
 #! }
-#! \author{ Jens Oehlschl‰gel }
+#! \author{ Jens Oehlschl√§gel }
 #! \seealso{ \code{\link{bit}}, \code{\link{Logic}} }
 #! \examples{
 #!   x <- as.bit(c(FALSE, FALSE, FALSE, NA, NA, NA, TRUE, TRUE, TRUE))
@@ -1573,7 +1575,7 @@ xor.bitwhich(e1, e2)
 #! \value{
 #!   as expected
 #! }
-#! \author{ Jens Oehlschl‰gel }
+#! \author{ Jens Oehlschl√§gel }
 #! \seealso{ \code{\link{bit}}, \code{\link{all}}, \code{\link{any}}, \code{\link{min}}, \code{\link{max}}, \code{\link{range}}, \code{\link{sum}}, \code{\link{summary}} }
 #! \examples{
 #!   x <- as.bit(c(TRUE, TRUE))
@@ -1617,7 +1619,7 @@ xor.bitwhich(e1, e2)
 #!       s <- 0L
 #!       l <- logical(N)
 #!       for (b in 1:B){
-#!         .Call("R_bit_extract", x, ((b-1L)*N+1L):(b*N), l, PACKAGE = "bit")
+#!         .Call("R_bit_extract", x, length(x), ((b-1L)*N+1L):(b*N), l, PACKAGE = "bit")
 #!         s <- s + sum(l)
 #!       }
 #!       if (R)
@@ -1888,7 +1890,7 @@ if (FALSE){
 #!   The extractors \code{[[} and \code{[} return a logical scalar or vector.
 #!   The replacment functions return a bit object.
 #! }
-#! \author{ Jens Oehlschl‰gel }
+#! \author{ Jens Oehlschl√§gel }
 #! \seealso{ \code{\link{bit}}, \code{\link{Extract}} }
 #! \examples{
 #!   x <- as.bit(c(FALSE, NA, TRUE))
@@ -1916,7 +1918,7 @@ if (FALSE){
       stop("subscript must be positive integer (or double) within length")
     ret <- logical(1L)
     attr(ret, "vmode") <- "boolean"
-    .Call("R_bit_extract", x, i, ret, PACKAGE="bit")
+    .Call("R_bit_extract", x, length(x), i, ret, PACKAGE="bit")
   }else
     stop("subscript must be positive integer (or double) within length")
 }
@@ -1929,10 +1931,12 @@ if (FALSE){
     stop("value length not 1")
   if (is.numeric(i)){
     i <- as.integer(i)
-    if (is.na(i) || i<1L || i>length(x))
-      stop("subscript must be positive integer (or double) within length")
+    if (is.na(i) || i<1L)
+      stop("subscript must be positive integer (or double)")
+    if ((mi <- max(i))>length(x))
+      length(x) <- mi
     value2 <- as.logical(value)
-    .Call("R_bit_replace", x, i, value2, FALSE, PACKAGE="bit")
+    .Call("R_bit_replace", x, i, value2, PACKAGE="bit")
   }else
     stop("subscript must be positive integer (or double) within length")
 }
@@ -1958,67 +1962,66 @@ if (FALSE){
 
 
 "[.bit" <- function(x, i){
+  nx <- length(x)
   if ( missing(i) ){
-    len <- length(x)
-    ret <- logical(len)
-    .Call("R_bit_get", x, ret, range=c(1L, len), PACKAGE="bit")
+    ret <- logical(nx)
+    .Call("R_bit_get", x, ret, range=c(1L, nx), PACKAGE="bit")
   }else if(is.numeric(i)){
     if (inherits(i, "ri")){
-      if (i[1]<1L || i[2]>length(x))
+      if (i[1]<1L || i[2]>nx )
         stop("illegal range index 'ri'")
       ret <- logical(i[2]-i[1]+1L)
       .Call("R_bit_get", x, ret, range=i, PACKAGE="bit")
-    }else if (inherits(i, "bitwhich")){
-			i <- as.which(i)
-      n <- length(i)
+    }else{
+      if (inherits(i, "bitwhich")){
+        i <- as.which(i)
+        n <- length(i)
+      }else{
+        i <- as.integer(i)
+        n <- length(i)
+        if (n && i[1]<0){
+          i <- (as.integer(seq_along(x)))[i]
+          n <- length(i)
+        }
+      }
 			ret <- logical(n)
 			if (n)
-        .Call("R_bit_extract", x, i, ret, PACKAGE="bit")
-		}else{
-      i <- as.integer(i)
-      if (length(i)){
-        if (i[1]<0)
-          i <- (as.integer(seq_along(x)))[i]
-				ret <- logical(length(i))
-        .Call("R_bit_extract", x, i, ret, PACKAGE="bit")
-      }else{
-        ret <- logical()
-      }
+        .Call("R_bit_extract", x, nx, i, ret, PACKAGE="bit")
     }
   }else if(is.logical(i)){
     if (length(i)!=1 || is.na(i)){
-      stop("only TRUE or FALSE allowed")
+      stop("only scalar TRUE or FALSE allowed")
     }else{
       if (i){
-        len <- length(x)
-        ret <- logical(len)
-        .Call("R_bit_get", x, ret, range=c(1L, len), PACKAGE="bit")
+        ret <- logical(nx)
+        .Call("R_bit_get", x, ret, range=c(1L, nx), PACKAGE="bit")
       }else{
         ret <- logical()
       }
     }
   }else
-      stop("subscript must be integer (or double) or bitwhich")
-
+      stop("subscript must be integer (or double) or bitwhich or TRUE or FALSE")
   attr(ret, "vmode") <- "boolean"
   ret
 }
 
 
 "[<-.bit" <- function(x, i, value){
+  nx <- length(x)
   if ( missing(i) ){
-    len <- length(x)
-    if (length(value)==len){
+    if (length(value)==nx){
       value2 <- as.logical(value)
     }else{
-      value2 <- logical(len)
+      value2 <- logical(nx)
       value2[] <- value
     }
-    .Call("R_bit_set", x, value2, range=c(1L, len), PACKAGE="bit")
+    .Call("R_bit_set", x, value2, range=c(1L, nx), PACKAGE="bit")
   }else if(is.numeric(i)){
     if (inherits(i, "ri")){
-      if (i[1]<1L || i[2]>length(x))
+      if (i[1]<1L)
         stop("illegal range index 'ri'")
+      if (i[2]>nx)
+        length(x) <- i[2]
       n <- i[2] - i[1] + 1L
       if (length(value)==n){
         value2 <- as.logical(value)
@@ -2038,7 +2041,9 @@ if (FALSE){
 					i <- (as.integer(seq_along(x)))[i]
 					n <- length(i)
 				}
-			} 
+			}
+      if ((mi <- max(i))>nx)
+        length(x) <- mi
       if (length(value)==n){
         value2 <- as.logical(value)
       }else{
@@ -2049,23 +2054,22 @@ if (FALSE){
     }
   }else if (is.logical(i)){
     if (length(i)!=1 || is.na(i)){
-      stop("only TRUE or FALSE allowed")
+      stop("only scalar TRUE or FALSE allowed")
     }else{
       if (i){
-        len <- length(x)
-        if (length(value)==len){
+        if (length(value)==nx){
           value2 <- as.logical(value)
         }else{
-          value2 <- logical(len)
+          value2 <- logical(nx)
           value2[] <- value
         }
-        .Call("R_bit_set", x, value2, range=c(1L, len), PACKAGE="bit")
+        .Call("R_bit_set", x, value2, range=c(1L, nx), PACKAGE="bit")
       }else{
         x
       }
     }
   }else
-      stop("subscript must be integer (or double) within length")
+      stop("subscript must be integer (or double) or bitwhich or TRUE or FALSE")
 }
 
 
@@ -2092,7 +2096,7 @@ if (FALSE){
 #! \value{
 #!   A two element integer vector with class 'ri'
 #! }
-#! \author{ Jens Oehlschl‰gel }
+#! \author{ Jens Oehlschl√§gel }
 #! \seealso{ \code{\link[ff]{as.hi.ri}} }
 #! \examples{
 #!  bit(12)[ri(1,6)]
@@ -2212,7 +2216,7 @@ summary.ri <- function(object, ...){
 #! \value{
 #!   \command{physical} and \command{virtual} returns a list with named elements
 #! }
-#! \author{ Jens Oehlschl‰gel }
+#! \author{ Jens Oehlschl√§gel }
 #! \seealso{
 #!  \code{\link[ff]{physical.ff}}, \code{\link[ff]{physical.ffdf}}
 #! }
@@ -2282,7 +2286,7 @@ R_bit_as_hi <- function(x, range, offset)
 #! \value{
 #!   a vector of class 'logical' or 'integer'
 #! }
-#! \author{ Jens Oehlschl‰gel }
+#! \author{ Jens Oehlschl√§gel }
 #! \seealso{ \code{\link{bit}}, \code{\link{as.bit}}, \code{\link{as.logical}}, \code{\link{as.integer}}, \code{\link{which}} }
 #! \examples{
 #!   if (regtest.bit()){
@@ -2302,9 +2306,75 @@ regtest.bit <- function(
     N = 100  # number of repetitions for random regression tests
 )
 {
+  #.BITS <- bit:::.BITS  # available in package namespace
   OK <- TRUE
   pool <- c(FALSE, TRUE)
 
+  if (!identical(unattr(as.bit(c(FALSE,NA,TRUE))[]), c(FALSE,FALSE,TRUE))){
+    message("bit error: wrong coercion of triboolean to (bi)boolean")
+    OK <- FALSE
+  }
+
+  l <- TRUE
+  b <- as.bit(l)
+
+  i <- -c(1, 0, 1, NA)
+  if (!inherits(try(b[i], silent=TRUE), "try-error")){
+    message("bit error: did not throw on mixing zero with negative subscripts")
+    OK <- FALSE
+  }
+    
+  i <- c(2, 1, 0, 1, NA)
+  if (!identical(l[i],unattr(b[i]))){
+    message("\nregression test difference between b[i] and l[i]")
+    print(l[i])
+    print(unattr(b[i]))
+    OK <- FALSE
+  }
+
+  l[0] <- TRUE
+  b[0] <- TRUE
+  if (!identical(l,unattr(b[]))){
+    message("\nregression test difference after assigning at R position zero")
+    print(l)
+    print(unattr(b[]))
+    OK <- FALSE
+ }
+
+  l[2] <- TRUE
+  b[2] <- TRUE
+  if (!identical(ifelse(is.na(l), FALSE, l),unattr(b[]))){
+    message("\nregression test difference after assigning after vector length (at 2)")
+    print(l)
+    print(unattr(b[]))
+    OK <- FALSE
+  }
+
+  l[.BITS+1] <- FALSE
+  b[.BITS+1] <- NA
+  if (!identical(ifelse(is.na(l), FALSE, l),unattr(b[]))){
+    message("\nregression test difference after assigning after vector length (at .BITS+1)")
+    print(l)
+    print(unattr(b[]))
+    OK <- FALSE
+  }
+
+  if (!identical(ifelse(is.na(l[TRUE]), FALSE, l[TRUE]),unattr(b[TRUE]))){
+    message("\nregression test difference after subscripting with scalar TRUE")
+    print(l)
+    print(unattr(b[]))
+    OK <- FALSE
+  }
+
+  if (!identical(ifelse(is.na(l[FALSE]), FALSE, l[FALSE]),unattr(b[FALSE]))){
+    message("\nregression test difference after subscripting with scalar FALSE")
+    print(l)
+    print(unattr(b[]))
+    OK <- FALSE
+  }
+
+  
+  
   for (i in 1:N){
     n <- sample(1:(2*.BITS), 1)
     l <- sample(pool, n, TRUE)
@@ -2318,6 +2388,8 @@ regtest.bit <- function(
       print(l2)
       OK <- FALSE
     }
+    
+
     # summary functions with logical return
     s <- c(all=all(l), any=any(l))
     s2 <- c(all=all(b), any=any(b))

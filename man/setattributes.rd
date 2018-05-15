@@ -33,7 +33,7 @@ The attributes of 'x' are changed in place without copying x. function \code{set
   Writing R extensions -- System and foreign language interfaces -- Handling R objects in C -- Attributes (Version 2.11.1 (2010-06-03 ) R Development)
 }
 \author{
-Jens Oehlschl‰gel
+Jens Oehlschl√§gel
 }
 
 \seealso{
@@ -91,11 +91,11 @@ Jens Oehlschl‰gel
   library(bit)
 
   simplefactor <- function(n){
-    factor(rep(1:2, length=n))
+    factor(rep(1:2, length.out=n))
   }
 
   mysimplefactor <- function(n){
-    ret <- rep(1:2, length=n)
+    ret <- rep(1:2, length.out=n)
     setattr(ret, "levels", as.character(1:2))
     setattr(ret, "class", "factor")
     ret

@@ -1,6 +1,6 @@
 /*
 # fast rle handling for bit and ff
-# (c) 2007-2009 Jens Oehlsch‰gel
+# (c) 2007-2009 Jens Oehlsch√§gel
 # Licence: GPL2
 # Provided 'as is', use at your own risk
 # Created: 2007-08-24
@@ -9,6 +9,26 @@
 
 #include <R.h>
 #include <Rinternals.h>
+
+SEXP first_zero(SEXP x)
+{
+  int i;
+  int n = LENGTH(x);
+  int *p = INTEGER(x);
+  SEXP ret_;
+  PROTECT( ret_ = allocVector(INTSXP, 1) );
+  INTEGER(ret_)[0] = 0;
+  if (n){
+    for (i=0;i<n;i++){
+      if (p[i]==0){
+        INTEGER(ret_)[0] = i + 1;
+        break;
+      }
+    }
+  }
+  UNPROTECT(1);
+  return ret_;
+}
 
 
 /* check for NA and not sorted ascending

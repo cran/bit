@@ -60,7 +60,7 @@
 \value{
   as expected
 }
-\author{ Jens Oehlschl‰gel }
+\author{ Jens Oehlschl√§gel }
 \seealso{ \code{\link{bit}}, \code{\link{all}}, \code{\link{any}}, \code{\link{min}}, \code{\link{max}}, \code{\link{range}}, \code{\link{sum}}, \code{\link{summary}} }
 \examples{
   x <- as.bit(c(TRUE, TRUE))
@@ -104,7 +104,7 @@
       s <- 0L
       l <- logical(N)
       for (b in 1:B){
-        .Call("R_bit_extract", x, ((b-1L)*N+1L):(b*N), l, PACKAGE = "bit")
+        .Call("R_bit_extract", x, length(x), ((b-1L)*N+1L):(b*N), l, PACKAGE = "bit")
         s <- s + sum(l)
       }
       if (R)
