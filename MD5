@@ -1,6 +1,6 @@
-cd204ad3061ccceec802ed3c654dfbae *DESCRIPTION
+6d049ed4aa2033bcfde0f4d1eeed1d69 *DESCRIPTION
 fee0abda95904dfe14897116acc8ef1e *NAMESPACE
-26d50f967e62691e733798b493eb74be *NEWS
+3187ab640b78e2a8e181ea2d7d1e120c *NEWS
 b48aa139e343774a691a06d12fdfe1bb *R/attrutil.R
 caabcf043a6c2770b642b1f1fe77eddb *R/bit.R
 e620399da08f3edc134918a3b1eb950a *R/chunkutil.R
@@ -42,7 +42,7 @@ b1410e00b6a6b16ef1db041e8f9030bc *man/rlepack.rd
 83ac633e54804332a2fc161dc9df1568 *man/unattr.rd
 ba9bbaba8512724f391db52c143c3382 *man/vecseq.rd
 17e468897ab676a3e2d25b73677b8a0f *src/attrutil.c
-cbbddc01550bd21842e3164f0cca015e *src/bit.c
+cc4f9a850641df53fd42d2057b901445 *src/bit.c
 bbf08ffdde11f52f2f732166852fb90c *src/chunkutil.c
 72977af41aeb68ca6f36cfa51d479bb1 *src/clone.c
 7e995cc3c3f3be43292f808370df25aa *src/rle.c

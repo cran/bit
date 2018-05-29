@@ -1,7 +1,7 @@
 Package: bit
 Type: Package
 Title: A Class for Vectors of 1-Bit Booleans
-Version: 1.1-13
+Version: 1.1-14
 Date: 2018-04-11
 Author: Jens Oehlschlägel <Jens.Oehlschlaegel@truecluster.com>
 Maintainer: Jens Oehlschlägel <Jens.Oehlschlaegel@truecluster.com>
@@ -32,6 +32,6 @@ ByteCompile: yes
 Encoding: UTF-8
 URL: http://ff.r-forge.r-project.org/
 NeedsCompilation: yes
-Packaged: 2018-04-13 15:33:35 UTC; jo
+Packaged: 2018-05-27 20:28:22 UTC; jens
 Repository: CRAN
-Date/Publication: 2018-05-15 20:57:57 UTC
+Date/Publication: 2018-05-29 16:56:33 UTC
