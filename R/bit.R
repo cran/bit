@@ -1,11 +1,12 @@
 # 1-bit boolean vectors for R
 # (c) 2008-2009 Jens Oehlschägel
+# (C) 2020 Brian Ripley
 # Licence: GPL2
 # Provided 'as is', use at your own risk
 
 # currently |.bit and |.bitwhich are bypassed if we ask for bit | bitwhich
 # xx explore/write Ops.bit Ops.bitwhich
-# xx bit_extract should be comlemented with 
+# xx bit_extract should be comlemented with
 
 # source("C:/mwp/eanalysis/bit/R/bit.R")
 
@@ -225,7 +226,7 @@
 #!     system.time(for(i in 1:100){
 #!        l[] <- TRUE
 #!     })/100
-#!     # replace bit by TRUE (NOTE that we recycle the assignment  
+#!     # replace bit by TRUE (NOTE that we recycle the assignment
 #!		 # value on R side == memory allocation and assignment first)
 #!     system.time(for(i in 1:100){
 #!        b[] <- TRUE
@@ -404,7 +405,7 @@ bitwhich <- function(maxindex, poslength=NULL, x=NULL){
   }
   attr(x, "maxindex") <- as.integer(maxindex)
   attr(x, "poslength") <- poslength
-  # NOTE: here we want one (1) copy of x to not modify argument x 
+  # NOTE: here we want one (1) copy of x to not modify argument x
 	# therefore we did not replace the oldClass assignment with a call to setttattr
   oldClass(x) <- "bitwhich"
   x
@@ -589,38 +590,36 @@ is.bitwhich <- function(x)
 length.bit <- function(x)
   virtual(x)$Length
 
-"length<-.bit" <- function(x, value){
-  if (value!=length(x)){
+## The original design here was broken when extending vectors
+"length<-.bit" <- function(x, value) {
     value <- as.integer(value)
-    dn <- value %% .BITS
-    if (dn){
-      n <- value %/% .BITS + 1L
-      .Call("R_bit_replace", x, (value+1L):(value+dn), logical(dn), PACKAGE="bit")
-    }else{
-      n <- value %/% .BITS
-    }
-    #pattr <- physical(x)
-    #vattr <- virtual(x)
-    pattr <- attr(x, "physical")
-    vattr <- attr(x, "virtual")
-    cl <- oldClass(x)
-    #x <- unclass(x)
-    attr(x, "class") <- NULL
-    if (.BITS==64L)
-      length(x) <- 2L*n
-    else
-      length(x) <- n
-    #vattr$Length <- value
-    attr(vattr, "Length") <- value
-    #physical(x) <- pattr
-    #virtual(x) <- vattr
-    #class(x) <- cl
-    attr(x, "physical") <- pattr
-    attr(x, "virtual") <- vattr
-    attr(x, "class") <- cl
-    x
-  }else
-    x
+    lx <- length(x)
+    if (value != lx) {
+        if (value < lx) { # shrinking
+            if (dn <- value %% .BITS) {
+                n <- value %/% .BITS + 1L
+                .Call("R_bit_replace", x, (value+1L):(value+dn), logical(dn),
+                      PACKAGE = "bit")
+            } else {
+                n <- value %/% .BITS
+            }
+        } else { # growing
+            ## underlying vector is already padded with zeroes so just
+            ## extend if needed.
+            n <- .BITS * ceiling(value/.BITS)
+        }
+        pattr <- attr(x, "physical")
+        vattr <- attr(x, "virtual")
+        cl <- oldClass(x)
+        attr(x, "class") <- NULL
+        ## shrink or grow underlying vector: might be a noop
+        length(x) <- if (.BITS == 64L) 2L*n else n
+        attr(vattr, "Length") <- value
+        attr(x, "physical") <- pattr
+        attr(x, "virtual") <- vattr
+        attr(x, "class") <- cl
+        x
+    } else x
 }
 
 
@@ -2323,7 +2322,7 @@ regtest.bit <- function(
     message("bit error: did not throw on mixing zero with negative subscripts")
     OK <- FALSE
   }
-    
+
   i <- c(2, 1, 0, 1, NA)
   if (!identical(l[i],unattr(b[i]))){
     message("\nregression test difference between b[i] and l[i]")
@@ -2373,8 +2372,8 @@ regtest.bit <- function(
     OK <- FALSE
   }
 
-  
-  
+
+
   for (i in 1:N){
     n <- sample(1:(2*.BITS), 1)
     l <- sample(pool, n, TRUE)
@@ -2388,7 +2387,7 @@ regtest.bit <- function(
       print(l2)
       OK <- FALSE
     }
-    
+
 
     # summary functions with logical return
     s <- c(all=all(l), any=any(l))

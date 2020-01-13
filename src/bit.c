@@ -1,8 +1,9 @@
 /*
    1-bit boolean vectors for R
-   first bit is stored in lowest (rightmost) bit of forst word
+   first bit is stored in lowest (rightmost) bit of first word
    remember that rightshifting is dangerous because we use the sign position
    Copyright 2008 Jens Oehlschlägel
+   Corrections (C) 2020 Brian Ripley
 */
 
 #include <R.h>
@@ -274,25 +275,30 @@ void bit_which_negative(bitint *b, int *l, int from, int to){
 
 int bit_extract(bitint *b, int nb, int *i, int *l, int n){
   register int ii, il, ib, j, k;
-  for (ii=0,il=0; ii<n; ii++){
-    if (i[ii]>0){
-      ib = i[ii] - 1;
-      if (ib<nb){
+  for (ii = 0, il = 0; ii < n; ii++){
+    if (i[ii] != 0) { // NA is -ve
+      ib = i[ii];
+      // This is needed for [.bit; disallowed in R code for [[.bit
+      if (ib == NA_INTEGER) {l[il++] = NA_INTEGER; continue;}
+      ib--;
+      if (ib < nb){
         j = ib/BITS;
         k = ib%BITS;
         l[il++] = b[j] & mask1[k] ? 1 : 0;
-      }else{
+      } else
         l[il++] = NA_INTEGER;
-      }
     }
   }
   return il;
 }
 
+// This gave valgrind errors, invalid read and write
+// There is no sanity check here on lengths nor indices
 void bit_replace(bitint *b, int *i, int *l, int n){
   register int ii, ib, j, k;
   for (ii=0; ii<n; ii++){
-    if (i[ii]>0){
+    if (i[ii] > 0){
+       // NA indices are not allowed.
       ib = i[ii] - 1;
       j = ib/BITS;
       k = ib%BITS;
