@@ -29,9 +29,9 @@ typedef unsigned long long int bitint;
 typedef unsigned int bitint;
 #endif
 
-bitint *mask0, *mask1;
+static bitint *mask0, *mask1;
 
-void bit_init(int   bits){
+static void bit_init(int   bits){
   if (bits != BITS)
     error("R .BITS and C BITS are not in synch");
   if (bits-1 != LASTBIT)
@@ -48,7 +48,7 @@ void bit_init(int   bits){
   }
 }
 
-void bit_done(){
+static void bit_done(){
   free(mask0);
   free(mask1);
 }
@@ -69,7 +69,7 @@ SEXP R_bit_done(){
   copy 'n' bits from 'bfrom' to 'bto' with offset 'oto'
   NOTE that remaining target bits AFTER the copied area are overwritten with zero
 */
-void bit_shiftcopy(
+static void bit_shiftcopy(
   bitint *bsource /* bit source */
 , bitint *btarget /* bit target */
 , int otarget     /* offset target */
@@ -123,7 +123,7 @@ void bit_shiftcopy(
 
 
 
-void bit_get(bitint *b, int *l, int from, int to){
+static void bit_get(bitint *b, int *l, int from, int to, int nb){
   from--;
   to--;
   register bitint word;
@@ -132,6 +132,8 @@ void bit_get(bitint *b, int *l, int from, int to){
   register int j=from/BITS;
   register int k1=to%BITS;
   register int j1=to/BITS;
+  if (j < 0 || j >= nb) error("attempting index %d/%d\n", j, nb);
+  if (j1 < 0 || j1 >= nb) error("attempting index %d/%d\n", j, nb);
   if (j<j1){
     word = b[j];
     for(; k<BITS; k++){
@@ -154,7 +156,7 @@ void bit_get(bitint *b, int *l, int from, int to){
 }
 
 
-void bit_set(bitint *b, int *l, int from, int to){
+static void bit_set(bitint *b, int *l, int from, int to, int nb){
   from--;
   to--;
   register bitint word = 0;  /* this init only to keep compiler quiet */
@@ -163,6 +165,8 @@ void bit_set(bitint *b, int *l, int from, int to){
   register int j=from/BITS;
   register int k1=to%BITS;
   register int j1=to/BITS;
+  if (j < 0 || j >= nb) error("attempting index %d/%d\n", j, nb);
+  if (j1 < 0 || j1 >= nb) error("attempting index %d/%d\n", j, nb);
   if (j<j1){
     word = b[j];
     for(; k<BITS; k++){
@@ -197,7 +201,7 @@ void bit_set(bitint *b, int *l, int from, int to){
 }
 
 
-void bit_which_positive(bitint *b, int *l, int from, int to, int offset){
+static void bit_which_positive(bitint *b, int *l, int from, int to, int offset){
   register int i=from + offset;
   from--;
   to--;
@@ -235,7 +239,7 @@ void bit_which_positive(bitint *b, int *l, int from, int to, int offset){
 }
 
 
-void bit_which_negative(bitint *b, int *l, int from, int to){
+static void bit_which_negative(bitint *b, int *l, int from, int to){
   register int i= -to;
   from--;
   to--;
@@ -273,7 +277,7 @@ void bit_which_negative(bitint *b, int *l, int from, int to){
 }
 
 
-int bit_extract(bitint *b, int nb, int *i, int *l, int n){
+static int bit_extract(bitint *b, int nb, int *i, int *l, int n, int nb_){
   register int ii, il, ib, j, k;
   for (ii = 0, il = 0; ii < n; ii++){
     if (i[ii] != 0) { // NA is -ve
@@ -283,6 +287,7 @@ int bit_extract(bitint *b, int nb, int *i, int *l, int n){
       ib--;
       if (ib < nb){
         j = ib/BITS;
+	if (j < 0 || j >= nb_) error("attempting index %d/%d\n", j, nb);
         k = ib%BITS;
         l[il++] = b[j] & mask1[k] ? 1 : 0;
       } else
@@ -293,14 +298,14 @@ int bit_extract(bitint *b, int nb, int *i, int *l, int n){
 }
 
 // This gave valgrind errors, invalid read and write
-// There is no sanity check here on lengths nor indices
-void bit_replace(bitint *b, int *i, int *l, int n){
+static void bit_replace(bitint *b, int *i, int *l, int n, int nb){
   register int ii, ib, j, k;
   for (ii=0; ii<n; ii++){
     if (i[ii] > 0){
        // NA indices are not allowed.
       ib = i[ii] - 1;
       j = ib/BITS;
+      if (j < 0 || j >= nb) error("attempting index %d/%d\n", j, nb);
       k = ib%BITS;
       if (l[ii]==TRUE)
         b[j] |= mask1[k];
@@ -311,7 +316,7 @@ void bit_replace(bitint *b, int *i, int *l, int n){
 }
 
 
-void bit_not(bitint *b, int n){
+static void bit_not(bitint *b, int n){
   register int i;
   for (i=0; i<n; i++){
     b[i] = ~b[i];
@@ -319,28 +324,28 @@ void bit_not(bitint *b, int n){
 }
 
 
-void bit_and(bitint *b1, bitint *b2, bitint *ret, int n){
+static void bit_and(bitint *b1, bitint *b2, bitint *ret, int n){
   register int i;
   for (i=0; i<n; i++){
     ret[i] = b1[i] & b2[i];
   }
 }
 
-void bit_or(bitint *b1, bitint *b2, bitint *ret, int n){
+static void bit_or(bitint *b1, bitint *b2, bitint *ret, int n){
   register int i;
   for (i=0; i<n; i++){
     ret[i] = b1[i] | b2[i];
   }
 }
 
-void bit_xor(bitint *b1, bitint *b2, bitint *ret, int n){
+static void bit_xor(bitint *b1, bitint *b2, bitint *ret, int n){
   register int i;
   for (i=0; i<n; i++){
     ret[i] = b1[i] ^ b2[i];
   }
 }
 
-void bit_equal(bitint *b1, bitint *b2, bitint *ret, int n){
+static void bit_equal(bitint *b1, bitint *b2, bitint *ret, int n){
   register int i;
   for (i=0; i<n; i++){
     ret[i] = ~(b1[i] ^ b2[i]);
@@ -348,7 +353,7 @@ void bit_equal(bitint *b1, bitint *b2, bitint *ret, int n){
 }
 
 
-int bit_sum(bitint *b, int from, int to){
+static int bit_sum(bitint *b, int from, int to, int nb){
   from--;
   to--;
   register bitint word;
@@ -358,12 +363,14 @@ int bit_sum(bitint *b, int from, int to){
   register int k1=to%BITS;
   register int j1=to/BITS;
   if (j<j1){
+    if (j < 0 || j >= nb) error("attempting index %d/%d\n", j, nb);
     word = b[j];
     for(; k<BITS; k++){
       if (word & mask1[k])
         s++;
     }
     for (j++; j<j1; j++){
+      if (j < 0 || j >= nb) error("attempting index %d/%d\n", j, nb);
       word = b[j];
       for(k=0; k<BITS; k++){
         if (word & mask1[k])
@@ -373,6 +380,7 @@ int bit_sum(bitint *b, int from, int to){
     k=0;
   }
   if (j==j1){
+    if (j < 0 || j >= nb) error("attempting index %d/%d\n", j, nb);
     word = b[j];
     for(; k<=k1; k++){
       if (word & mask1[k])
@@ -383,7 +391,7 @@ int bit_sum(bitint *b, int from, int to){
 }
 
 
-int bit_all(bitint *b, int from, int to){
+static int bit_all(bitint *b, int from, int to, int nb){
   from--;
   to--;
   register bitint word;
@@ -392,6 +400,7 @@ int bit_all(bitint *b, int from, int to){
   register int k1=to%BITS;
   register int j1=to/BITS;
   if (j<j1){
+    if (j < 0 || j >= nb) error("attempting index %d/%d\n", j, nb);
     word = b[j];
     for(; k<BITS; k++){
       if (!(word & mask1[k]))
@@ -404,6 +413,7 @@ int bit_all(bitint *b, int from, int to){
     k=0;
   }
   if (j==j1){
+    if (j < 0 || j >= nb) error("attempting index %d/%d\n", j, nb);
     word = b[j];
     for(; k<=k1; k++){
       if (!(word & mask1[k]))
@@ -415,7 +425,7 @@ int bit_all(bitint *b, int from, int to){
 
 
 
-int bit_any(bitint *b, int from, int to){
+static int bit_any(bitint *b, int from, int to, int nb){
   from--;
   to--;
   register bitint word;
@@ -424,18 +434,21 @@ int bit_any(bitint *b, int from, int to){
   register int k1=to%BITS;
   register int j1=to/BITS;
   if (j<j1){
+    if (j < 0 || j >= nb) error("attempting index %d/%d\n", j, nb);
     word = b[j];
     for(; k<BITS; k++){
       if (word & mask1[k])
         return 1;
     }
     for (j++; j<j1; j++){
+      if (j < 0 || j >= nb) error("attempting index %d/%d\n", j, nb);
       if(b[j])
         return 1;
     }
     k=0;
   }
   if (j==j1){
+    if (j < 0 || j >= nb) error("attempting index %d/%d\n", j, nb);
     word = b[j];
     for(; k<=k1; k++){
       if(b[j])
@@ -447,7 +460,7 @@ int bit_any(bitint *b, int from, int to){
 
 
 
-int bit_min(bitint *b, int from, int to){
+static int bit_min(bitint *b, int from, int to, int nb){
   from--;
   to--;
   register bitint word;
@@ -456,6 +469,7 @@ int bit_min(bitint *b, int from, int to){
   register int k1=to%BITS;
   register int j1=to/BITS;
   if (j<j1){
+    if (j < 0 || j >= nb) error("attempting index %d/%d\n", j, nb);
     word = b[j];
     if(word){
       for(; k<BITS; k++){
@@ -465,6 +479,7 @@ int bit_min(bitint *b, int from, int to){
       }
     }
     for (j++; j<j1; j++){
+      if (j < 0 || j >= nb) error("attempting index %d/%d\n", j, nb);
       word = b[j];
       if (word)
         for(k=0; k<BITS ;k++){
@@ -476,6 +491,7 @@ int bit_min(bitint *b, int from, int to){
     k=0;
   }
   if (j==j1){
+    if (j < 0 || j >= nb) error("attempting index %d/%d\n", j, nb);
     word = b[j];
     if (word)
       for(; k<=k1; k++){
@@ -490,7 +506,7 @@ int bit_min(bitint *b, int from, int to){
 
 
 
-int bit_max(bitint *b, int from, int to){
+static int bit_max(bitint *b, int from, int to, int nb){
   from--;
   to--;
   register bitint word;
@@ -499,6 +515,7 @@ int bit_max(bitint *b, int from, int to){
   register int k=to%BITS;
   register int j=to/BITS;
   if (j>j0){
+    if (j < 0 || j >= nb) error("attempting index %d/%d\n", j, nb);
     word = b[j];
     if (word){
       for(; k>=0; k--){
@@ -507,6 +524,7 @@ int bit_max(bitint *b, int from, int to){
       }
     }
     for (j--; j>j0; j--){
+      if (j < 0 || j >= nb) error("attempting index %d/%d\n", j, nb);
       word = b[j];
       if (word){
         for(k=LASTBIT; k>=0; k--){
@@ -518,6 +536,7 @@ int bit_max(bitint *b, int from, int to){
     k=LASTBIT;
   }
   if (j==j0){
+    if (j < 0 || j >= nb) error("attempting index %d/%d\n", j, nb);
     word = b[j];
     if (word){
       for(; k>=k0; k--){
@@ -532,6 +551,7 @@ int bit_max(bitint *b, int from, int to){
 
 /* R interface functions -------------------- */
 
+// this alters btarget
 SEXP R_bit_shiftcopy(
   SEXP bsource_  /* bit source */
 , SEXP btarget_    /* bit target: assumed FALSE in the target positions and above */
@@ -546,35 +566,39 @@ SEXP R_bit_shiftcopy(
   return(btarget_);
 }
 
+// this alters l_
 SEXP R_bit_get(SEXP b_, SEXP l_, SEXP range_){
   bitint *b = (bitint*) INTEGER(b_);
   int *l = LOGICAL(l_);
   int *range = INTEGER(range_);
-  bit_get(b, l, range[0], range[1]);
+  bit_get(b, l, range[0], range[1], LENGTH(b_));
   return(l_);
 }
+
+// this alters l_
 SEXP R_bit_get_integer(SEXP b_, SEXP l_, SEXP range_){
   bitint *b = (bitint*) INTEGER(b_);
   int *l = INTEGER(l_);
   int *range = INTEGER(range_);
-  bit_get(b, l, range[0], range[1]);
+  bit_get(b, l, range[0], range[1], LENGTH(b_));
   return(l_);
 }
 
-
-
+// this alters b_
 SEXP R_bit_set(SEXP b_, SEXP l_, SEXP range_){
   bitint *b = (bitint*) INTEGER(b_);
   int *l = LOGICAL(l_);
   int *range = INTEGER(range_);
-  bit_set(b, l, range[0], range[1]);
+  bit_set(b, l, range[0], range[1], LENGTH(b_));
   return(b_);
 }
+
+// this alters b_
 SEXP R_bit_set_integer(SEXP b_, SEXP l_, SEXP range_){
   bitint *b = (bitint*) INTEGER(b_);
   int *l = INTEGER(l_);
   int *range = INTEGER(range_);
-  bit_set(b, l, range[0], range[1]);
+  bit_set(b, l, range[0], range[1], LENGTH(b_));
   return(b_);
 }
 
@@ -807,7 +831,7 @@ SEXP R_bit_as_hi(SEXP b_, SEXP range_, SEXP offset_)
       int *dat;
 
       first++;
-      s = bit_sum(b, first, range[1]);
+      s = bit_sum(b, first, range[1], LENGTH(b_));
       PROTECT( dat_ = allocVector(INTSXP, s) );
       dat = INTEGER(dat_);
       //Rprintf("1: offset=%d first=%d last=%d\n", offset, first, last);
@@ -860,31 +884,32 @@ SEXP R_bit_as_hi(SEXP b_, SEXP range_, SEXP offset_)
 #undef HANDLE_TRUE
 
 
-
+// this alters l_
 SEXP R_bit_extract(SEXP b_, SEXP nb_, SEXP i_, SEXP l_){
   bitint *b = (bitint*) INTEGER(b_);
   int *i = INTEGER(i_);
   int *l = LOGICAL(l_);
   int n = LENGTH(i_);
   int nb = asInteger(nb_);
-  int nl = bit_extract(b, nb, i, l, n); // nl < n if i_ contains zeros
+  int nl = bit_extract(b, nb, i, l, n, LENGTH(b_)); // nl < n if i_ contains zeros
   if (nl<n){
     SETLENGTH(l_, nl);
   }
   return(l_);
 }
 
+// this alters b_
 SEXP R_bit_replace(SEXP b_, SEXP i_, SEXP l_){
   bitint *b = (bitint*) INTEGER(b_);
   int *i = INTEGER(i_);
   int *l = LOGICAL(l_);
   int n = LENGTH(i_);
-  bit_replace(b, i, l, n);
+  bit_replace(b, i, l, n, LENGTH(b_));
   return(b_);
 }
 
 
-
+// this alters b_
 SEXP R_bit_not(SEXP b_){
   bitint *b = (bitint*) INTEGER(b_);
 #if BITS==64  
@@ -896,6 +921,7 @@ SEXP R_bit_not(SEXP b_){
   return(b_);
 }
 
+// this alters ret_
 SEXP R_bit_and(SEXP b1_, SEXP b2_, SEXP ret_){
   bitint *b1 = (bitint*) INTEGER(b1_);
   bitint *b2 = (bitint*) INTEGER(b2_);
@@ -909,6 +935,7 @@ SEXP R_bit_and(SEXP b1_, SEXP b2_, SEXP ret_){
   return(ret_);
 }
 
+// this alters ret_
 SEXP R_bit_or(SEXP b1_, SEXP b2_, SEXP ret_){
   bitint *b1 = (bitint*) INTEGER(b1_);
   bitint *b2 = (bitint*) INTEGER(b2_);
@@ -922,6 +949,7 @@ SEXP R_bit_or(SEXP b1_, SEXP b2_, SEXP ret_){
   return(ret_);
 }
 
+// this alters ret_
 SEXP R_bit_xor(SEXP b1_, SEXP b2_, SEXP ret_){
   bitint *b1 = (bitint*) INTEGER(b1_);
   bitint *b2 = (bitint*) INTEGER(b2_);
@@ -935,6 +963,7 @@ SEXP R_bit_xor(SEXP b1_, SEXP b2_, SEXP ret_){
   return(ret_);
 }
 
+// this alters ret_
 SEXP R_bit_equal(SEXP b1_, SEXP b2_, SEXP ret_){
   bitint *b1 = (bitint*) INTEGER(b1_);
   bitint *b2 = (bitint*) INTEGER(b2_);
@@ -954,7 +983,7 @@ SEXP R_bit_sum(SEXP b_, SEXP range_){
   int *range = INTEGER(range_);
   SEXP ret_;
   PROTECT( ret_ = allocVector(INTSXP,1) );
-  INTEGER(ret_)[0] = bit_sum(b, range[0],  range[1]);
+  INTEGER(ret_)[0] = bit_sum(b, range[0],  range[1], LENGTH(b_));
   UNPROTECT(1);
   return(ret_);
 }
@@ -964,7 +993,7 @@ SEXP R_bit_all(SEXP b_, SEXP range_){
   int *range = INTEGER(range_);
   SEXP ret_;
   PROTECT( ret_ = allocVector(LGLSXP,1) );
-  LOGICAL(ret_)[0] = bit_all(b, range[0],  range[1]);
+  LOGICAL(ret_)[0] = bit_all(b, range[0],  range[1], LENGTH(b_));
   UNPROTECT(1);
   return(ret_);
 }
@@ -975,7 +1004,7 @@ SEXP R_bit_any(SEXP b_, SEXP range_){
   int *range = INTEGER(range_);
   SEXP ret_;
   PROTECT( ret_ = allocVector(LGLSXP,1) );
-  LOGICAL(ret_)[0] = bit_any(b, range[0],  range[1]);
+  LOGICAL(ret_)[0] = bit_any(b, range[0],  range[1], LENGTH(b_));
   UNPROTECT(1);
   return(ret_);
 }
@@ -985,7 +1014,7 @@ SEXP R_bit_min(SEXP b_, SEXP range_){
   int *range = INTEGER(range_);
   SEXP ret_;
   PROTECT( ret_ = allocVector(INTSXP,1) );
-  INTEGER(ret_)[0] = bit_min(b, range[0],  range[1]);
+  INTEGER(ret_)[0] = bit_min(b, range[0],  range[1], LENGTH(b_));
   UNPROTECT(1);
   return(ret_);
 }
@@ -995,7 +1024,7 @@ SEXP R_bit_max(SEXP b_, SEXP range_){
   int *range = INTEGER(range_);
   SEXP ret_;
   PROTECT( ret_ = allocVector(INTSXP,1) );
-  INTEGER(ret_)[0] = bit_max(b, range[0],  range[1]);
+  INTEGER(ret_)[0] = bit_max(b, range[0],  range[1], LENGTH(b_));
   UNPROTECT(1);
   return(ret_);
 }
@@ -1003,7 +1032,7 @@ SEXP R_bit_max(SEXP b_, SEXP range_){
 
 // performance tests without bit
 
-void filter_getset(int *l1, int *l2, int n){
+static void filter_getset(int *l1, int *l2, int n){
   int i;
   for (i=0; i<n; i++){
     if (l1[i])
@@ -1013,7 +1042,7 @@ void filter_getset(int *l1, int *l2, int n){
   }
 }
 
-
+// this alters l2_
 SEXP R_filter_getset(SEXP l1_, SEXP l2_){
   int *l1 = LOGICAL(l1_);
   int *l2 = LOGICAL(l2_);

@@ -598,6 +598,7 @@ length.bit <- function(x)
         if (value < lx) { # shrinking
             if (dn <- value %% .BITS) {
                 n <- value %/% .BITS + 1L
+                ## NB: this changes x in-place
                 .Call("R_bit_replace", x, (value+1L):(value+dn), logical(dn),
                       PACKAGE = "bit")
             } else {
@@ -701,7 +702,8 @@ c.bit <- function(...){
   offsets <- c(0L, ncum[-length(ncum)])
   x <- bit(nnew)
   for (i in as.integer(seq.int(from=1, to=nl, by=1))){
-    b <- as.bit(l[[i]])
+     b <- as.bit(l[[i]])
+     ## returns in x: names not needed
     .Call("R_bit_shiftcopy", bsource_=b, btarget_=x, otarget_=offsets[i], n_=nold[i], FALSE, PACKAGE="bit")
   }
   x
@@ -1935,6 +1937,7 @@ if (FALSE){
     if ((mi <- max(i))>length(x))
       length(x) <- mi
     value2 <- as.logical(value)
+    ## NB: this changes x in-place
     .Call("R_bit_replace", x, i, value2, PACKAGE="bit")
   }else
     stop("subscript must be positive integer (or double) within length")
@@ -2049,6 +2052,7 @@ if (FALSE){
         value2 <- logical(n)
         value2[] <- value
       }
+      ## NB: this changes x in-place
       .Call("R_bit_replace", x, i, value2, PACKAGE="bit")
     }
   }else if (is.logical(i)){
