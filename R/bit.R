@@ -704,7 +704,7 @@ c.bit <- function(...){
   for (i in as.integer(seq.int(from=1, to=nl, by=1))){
      b <- as.bit(l[[i]])
      ## returns in x: names not needed
-    .Call("R_bit_shiftcopy", bsource_=b, btarget_=x, otarget_=offsets[i], n_=nold[i], FALSE, PACKAGE="bit")
+    .Call("R_bit_shiftcopy", bsource_=b, btarget_=x, otarget_=offsets[i], n_=nold[i], PACKAGE="bit")
   }
   x
 }

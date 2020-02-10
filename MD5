@@ -1,8 +1,8 @@
-138eb3349b6c3db3b4a2b4191d8780af *DESCRIPTION
+3167dd9526ab0a2696b55247aa2f7260 *DESCRIPTION
 fee0abda95904dfe14897116acc8ef1e *NAMESPACE
 6babb53c3d238c560655dd6b93b89404 *NEWS
 b48aa139e343774a691a06d12fdfe1bb *R/attrutil.R
-301a33879bce3243c23e3bc83b6882f3 *R/bit.R
+3d9762c6b1eae54888ce3eb2795d45c3 *R/bit.R
 e620399da08f3edc134918a3b1eb950a *R/chunkutil.R
 8a69552edc0adb26782856977a3b293b *R/clone.R
 526bc1bf35d8ba93070633fc75bb7ece *R/generics.R
@@ -45,5 +45,5 @@ ba9bbaba8512724f391db52c143c3382 *man/vecseq.rd
 944aba5de4cb263babcee4e860542163 *src/bit.c
 bbf08ffdde11f52f2f732166852fb90c *src/chunkutil.c
 72977af41aeb68ca6f36cfa51d479bb1 *src/clone.c
-637d5c49a63b7f6e334a8d9b99cdba08 *src/init.c
+f90474245ce69151eb3c989cf8be84d3 *src/init.c
 7e995cc3c3f3be43292f808370df25aa *src/rle.c
