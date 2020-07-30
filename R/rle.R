@@ -7,69 +7,48 @@
 
 # source("D:/mwp/eanalysis/bit/R/rle.R")
 
-#! \name{intrle}
-#! \alias{intrle}
-#! \alias{intisasc}
-#! \alias{intisdesc}
-#! \title{ Hybrid Index, C-coded utilities }
-#! \description{
-#!   These C-coded utilitites speed up index preprocessing considerably
-#! }
-#! \usage{
-#! intrle(x)
-#! intisasc(x)
-#! intisdesc(x)
-#! }
-#! \arguments{
-#!   \item{x}{ an integer vector }
-#! }
-#! \details{
-#!   \code{intrle} is by factor 50 faster and needs less RAM (2x its input vector) compared to \code{\link{rle}} which needs 9x the RAM of its input vector.
-#!   This is achieved because we allow the C-code of \code{intrle} to break when it turns out, that rle-packing will not achieve a
-#!   compression factor of 3 or better.
-#!   \cr
-#!   \code{intisasc} is a faster version of \code{\link{is.unsorted}}: it checks whether \code{x} is sorted and returns NA \code{x} contains NAs.
-#!   \cr
-#!   \code{intisdesc} checks for being sorted descending and assumes that the input \code{x} contains no NAs (is used after \code{intisasc} and does not check for NAs).
-#! }
-#! \value{
-#!   \code{intrle} returns an object of class \code{\link{rle}} or NULL, if rle-compression is not efficient (compression factor <3 or length(x)<3).
-#!   \cr
-#!   \code{intisasc} returns one of \code{FALSE, NA, TRUE}
-#!   \cr
-#!   \code{intisdesc} returns one of \code{FALSE, TRUE} (if the input contains NAs, the output is undefined)
-#! }
-#! \author{ Jens Oehlschlägel }
-#! \seealso{ \code{\link[ff]{hi}}, \code{\link{rle}}, \code{\link{is.unsorted}}, \code{\link[ff]{is.sorted}} }
-#! \examples{
-#!   intrle(sample(1:100))
-#!   intrle(diff(1:100))
-#!   intisasc(1:100)
-#!   intisasc(100:1)
-#!   intisasc(c(NA, 1:100))
-#!   intisdesc(1:100)
-#!   intisdesc(100:1)
-#! }
-#!
-#! \keyword{ IO }
-#! \keyword{ data }
-
-
-# -- check for sorting and NAs, 0s can be checked later when sorted ------------------
-
-# NA=NAs FALSE=NotAscending TRUE=OK
-intisasc <- function(x){
-  stopifnot(is.integer(x))
- .Call("int_check_ascending", x, PACKAGE="bit")
-}
-
-# FALSE=NotDescending TRUE=OK (assumes no NAs, i.e. need to use intisasc first)
-intisdesc <- function(x){
-  stopifnot(is.integer(x))
- .Call("int_check_descending", x, PACKAGE="bit")
-}
-
-
+#' Hybrid Index, C-coded utilities
+#' 
+#' These C-coded utilitites speed up index preprocessing considerably. 
+#' 
+#' \code{intrle} is by factor 50 faster and needs less RAM (2x its input
+#' vector) compared to \code{\link{rle}} which needs 9x the RAM of its input
+#' vector.  This is achieved because we allow the C-code of \code{intrle} to
+#' break when it turns out, that rle-packing will not achieve a compression
+#' factor of 3 or better.  \cr \code{intisasc} is a faster version of
+#' \code{\link{is.unsorted}}: it checks whether \code{x} is sorted.\cr 
+#' \code{intisdesc} checks for being sorted descending and 
+#' by default default assumes that the input \code{x} contains no NAs. 
+#' \code{na.method="none"} treats \code{NAs} (the smallest integer) like every other integer and hence returns either \code{TRUE} or \code{FALSE}
+#' \code{na.method="break"} checks for \code{NAs} and returns either \code{NA} as soon as  \code{NA} is encountered. 
+#' \code{na.method="skip"} checks for \code{NAs} and skips over them, hence decides the return value only on the basis of non-NA values. 
+#' 
+#' 
+#' @param x an integer vector
+#' @param na.method one of "none","break","skip", see details. The strange defaults stem from the initial usage. 
+#' @return \code{intrle} returns an object of class \code{\link{rle}} or NULL,
+#' if rle-compression is not efficient (compression factor <3 or length(x)<3).
+#' \cr \code{intisasc} returns one of \code{FALSE, NA, TRUE} \cr
+#' \code{intisdesc} returns one of \code{FALSE, TRUE} (if the input contains
+#' NAs, the output is undefined)
+#' @author Jens Oehlschlägel
+#' @seealso \code{\link[ff]{hi}}, \code{\link{rle}}, \code{\link{is.unsorted}},
+#' \code{\link[ff]{is.sorted}}
+#' @keywords IO data
+#' @examples
+#' 
+#'   intrle(sample(1:10))
+#'   intrle(diff(1:10))
+#'   intisasc(1:10)
+#'   intisasc(10:1)
+#'   intisasc(c(NA, 1:10))
+#'   intisdesc(1:10)
+#'   intisdesc(c(10:1, NA))
+#'   intisdesc(c(10:6, NA, 5:1))
+#'   intisdesc(c(10:6, NA, 5:1), na.method="skip")
+#'   intisdesc(c(10:6, NA, 5:1), na.method="break")
+#' 
+#' @export
 # -- fast and efficient rle ------------------
 
 # integer only
@@ -77,66 +56,77 @@ intisdesc <- function(x){
 # returns NULL if n<3 || rle is inefficient
 intrle <- function(x){
   stopifnot(is.integer(x))
- .Call("int_rle", x, PACKAGE="bit")
+  .Call(C_R_int_rle, x)
 }
+
+
+# -- check for sorting and NAs, 0s can be checked later when sorted ------------------
+
+#' @describeIn intrle check whether integer vector is ascending
+#' @export
+intisasc <- function(x, na.method=c("none","break","skip")[2]){
+  stopifnot(is.integer(x))
+  if (na.method=="break")
+    .Call(C_R_int_is_asc_break, x)
+  else if (na.method=="none")
+    .Call(C_R_int_is_asc_none, x)
+  else
+    .Call(C_R_int_is_asc_skip, x)
+}
+
+#' @describeIn intrle check whether integer vector is descending
+#' @export
+intisdesc <- function(x, na.method=c("none","break","skip")[1]){
+  stopifnot(is.integer(x))
+  if (na.method=="none")
+    .Call(C_R_int_is_desc_none, x)
+  else if (na.method=="break")
+    .Call(C_R_int_is_desc_break, x)
+  else
+    .Call(C_R_int_is_desc_skip, x)
+}
+
 
 
 
 # -- basic sequence packing and unpacking ---------------------------------------------------
 
-#! \name{rlepack}
-#! \alias{rlepack}
-#! \alias{rlepack.integer}
-#! \alias{rleunpack}
-#! \alias{rleunpack.rlepack}
-#! \alias{rev.rlepack}
-#! \alias{unique.rlepack}
-#! \alias{anyDuplicated.rlepack}
-#! \title{ Hybrid Index, rle-pack utilities }
-#! \description{
-#!   Basic utilities for rle packing and unpacking and apropriate methods for \code{\link{rev}} and \code{\link{unique}}.
-#! }
-#! \usage{
-#! rlepack(x, \dots)
-#! \method{rlepack}{integer}(x, pack = TRUE, \dots)
-#! rleunpack(x)
-#! \method{rleunpack}{rlepack}(x)
-#! \method{rev}{rlepack}(x)
-#! \method{unique}{rlepack}(x, incomparables = FALSE, \dots)
-#! \method{anyDuplicated}{rlepack}(x, incomparables = FALSE, \dots)
-#! }
-#! \arguments{
-#!   \item{x}{ in 'rlepack' an integer vector, in the other functions an object of class 'rlepack'}
-#!   \item{pack}{ FALSE to suppress packing }
-#!   \item{incomparables}{ just to keep R CMD CHECK quiet (not used) }
-#!   \item{\dots}{ just to keep R CMD CHECK quiet (not used) }
-#! }
-#! \value{
-#!   A list with components
-#!   \item{ first }{ the first element of the packed sequence }
-#!   \item{ dat   }{ either an object of class \code{\link{rle}} or the complete input vector \code{x} if rle-packing is not efficient }
-#!   \item{ last  }{ the last element of the packed sequence }
-#! }
-#! \author{ Jens Oehlschlägel }
-#! \seealso{ \code{\link[ff]{hi}}, \code{\link{intrle}}, \code{\link{rle}}, \code{\link{rev}}, \code{\link{unique}} }
-#! \examples{
-#!   x <- rlepack(rep(0L, 10))
-#!\dontshow{
-#!  for (x in list(10:1, 1:10, c(10:1,1:10), c(1:10,10:1), sample(100), sample(100, 100, TRUE), sample(10, 100, TRUE))){
-#!    stopifnot(identical(rleunpack(rlepack(x)), x))
-#!    stopifnot(identical(rleunpack(unique(rlepack(x))), unique(x)))
-#!    stopifnot(identical(anyDuplicated(rlepack(x)), anyDuplicated(x)))
-#!  }
-#!}
-#! }
-#! \keyword{ IO }
-#! \keyword{ data }
-
-#setOldClass("rlepack")
-
+#' Hybrid Index, rle-pack utilities
+#' 
+#' Basic utilities for rle packing and unpacking and apropriate methods for
+#' \code{\link{rev}} and \code{\link{unique}}.
+#' 
+#' 
+#' @param x in 'rlepack' an integer vector, in the other functions an object of
+#' class 'rlepack'
+#' @param pack FALSE to suppress packing
+#' @param incomparables just to keep R CMD CHECK quiet (not used)
+#' @param \dots just to keep R CMD CHECK quiet (not used)
+#' @return A list with components \item{ first }{ the first element of the
+#' packed sequence } \item{ dat }{ either an object of class \code{\link{rle}}
+#' or the complete input vector \code{x} if rle-packing is not efficient }
+#' \item{ last }{ the last element of the packed sequence }
+#' @author Jens Oehlschlägel
+#' @seealso \code{\link[ff]{hi}}, \code{\link{intrle}}, \code{\link{rle}},
+#' \code{\link{rev}}, \code{\link{unique}}
+#' @keywords IO data
+#' @examples
+#' 
+#'   x <- rlepack(rep(0L, 10))
+#' \dontshow{
+#'  for (x in list(10:1, 1:10, c(10:1,1:10), c(1:10,10:1), sample(100), sample(100, 100, TRUE), sample(10, 100, TRUE))){
+#'    stopifnot(identical(rleunpack(rlepack(x)), x))
+#'    stopifnot(identical(rleunpack(unique(rlepack(x))), unique(x)))
+#'    stopifnot(identical(anyDuplicated(rlepack(x)), anyDuplicated(x)))
+#'  }
+#' }
+#' 
+#' @export
 rlepack <- function(x, ...) 
 UseMethod("rlepack")
 
+#' @rdname rlepack
+#' @export
 rlepack.integer <- function(
   x
 , pack = TRUE   # TRUE / FALSE
@@ -153,13 +143,17 @@ rlepack.integer <- function(
   }else if (n==1){
     structure(list(first=x[1], dat=x, last=x[1]), class="rlepack")
   }else{
-    structure(list(first=as.integer(NA), dat=x, last=as.integer(NA)), class="rlepack")
+    structure(list(first=NA_integer_, dat=x, last=NA_integer_), class="rlepack")
   }
 }
 
+#' @rdname rlepack
+#' @export
 rleunpack <- function(x) 
 UseMethod("rleunpack")
 
+#' @rdname rlepack
+#' @export
 rleunpack.rlepack <- function(x){
   if (inherits(x$dat, "rle"))
     as.integer(cumsum(c(x$first, rep(x$dat$values, x$dat$lengths))))
@@ -168,6 +162,8 @@ rleunpack.rlepack <- function(x){
 }
 
 
+#' @rdname rlepack
+#' @export
 rev.rlepack <- function(x){
   if (inherits(x$dat,"rle")){
     x$dat$values <- -rev(x$dat$values)
@@ -185,6 +181,8 @@ rev.rlepack <- function(x){
 # beware: only for sorted input identical with unique()
 # beware: rlepack(unique(x)) is faster than unique(rlepack(x))
 # we use this only in hi() and as.hi.default()
+#' @rdname rlepack
+#' @export
 unique.rlepack <- function(x
 , incomparables = FALSE # dummy to keep R CMD check quiet
 , ... # dummy to keep R CMD check quiet
@@ -207,6 +205,8 @@ unique.rlepack <- function(x
 
 # beware: only for sorted input identical with unique()
 # beware: returns TRUE/FALSE, not position of first duplicate
+#' @rdname rlepack
+#' @export
 anyDuplicated.rlepack <- function(x
 , incomparables = FALSE # dummy to keep R CMD check quiet
 , ... # dummy to keep R CMD check quiet
@@ -216,7 +216,7 @@ anyDuplicated.rlepack <- function(x
     if (tab[1] && tab[3])
       anyDuplicated(rleunpack(x))
     else if (tab[2]){
-      w <- .Call("first_zero", x$dat$values, PACKAGE="bit")
+      w <- .Call(C_R_first_zero, x$dat$values)
       if (w)
         if(w>1L)
           sum(x$dat$lengths[1:(w-1L)]) + 2L

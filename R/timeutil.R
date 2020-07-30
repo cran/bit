@@ -4,44 +4,31 @@
 # Provided 'as is', use at your own risk
 # Created: 2012-05-28
 
-#! \name{repeat.time}
-#! \alias{repeat.time}
-#! \title{
-#! Adaptive timer
-#! }
-#! \description{
-#! Repeats timing expr until minSec is reached
-#! }
-#! \usage{
-#! repeat.time(expr, gcFirst = TRUE, minSec = 0.5, envir=parent.frame())
-#! }
-#! \arguments{
-#!   \item{expr}{Valid \R expression to be timed.}
-#!   \item{gcFirst}{Logical - should a garbage collection be performed
-#!     immediately before the timing?  Default is \code{TRUE}.}
-#!   \item{minSec}{number of seconds to repeat at least}
-#!   \item{envir}{the environment in which to evaluate \code{expr} (by default the calling frame)}
-#! }
-#! \value{
-#!   A object of class \code{"proc_time"}: see
-#!   \code{\link{proc.time}} for details.
-#! }
-#! \seealso{
-#!   \code{\link{system.time}}
-#! }
-#! \author{
-#! Jens Oehlschlägel <Jens.Oehlschlaegel@truecluster.com>
-#! }
-#! \examples{
-#!   system.time(1+1)
-#!   repeat.time(1+1)
-#!   system.time(sort(runif(1e6)))
-#!   repeat.time(sort(runif(1e6)))
-#! }
-#! \keyword{utilities}
-
-repeat.time <- 
-function (expr, gcFirst = TRUE, minSec=0.5, envir=parent.frame()) 
+#' Adaptive timer
+#' 
+#' Repeats timing expr until minSec is reached
+#' 
+#' 
+#' @param expr Valid expression to be timed.
+#' @param gcFirst Logical - should a garbage collection be performed
+#' immediately before the timing?  Default is \code{TRUE}.
+#' @param minSec number of seconds to repeat at least
+#' @param envir the environment in which to evaluate \code{expr} (by default
+#' the calling frame)
+#' @return A object of class \code{"proc_time"}: see \code{\link{proc.time}}
+#' for details.
+#' @author Jens Oehlschlägel <Jens.Oehlschlaegel@@truecluster.com>
+#' @seealso \code{\link{system.time}}
+#' @keywords utilities
+#' @examples
+#' 
+#'   system.time(1+1)
+#'   repeat.time(1+1)
+#'   system.time(sort(runif(1e6)))
+#'   repeat.time(sort(runif(1e6)))
+#' 
+#' @export
+repeat.time <- function (expr, gcFirst = TRUE, minSec=0.5, envir=parent.frame()) 
 {
 	ppt <- function(y) {
 		if (!is.na(y[4L])) 

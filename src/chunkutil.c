@@ -1,10 +1,8 @@
 /*
 # C-Code for chunk utilities
-# (c) 2012 Jens Oehlsch√§gel
+# (c) 2012 Jens Oehlsch‰gel
 # Licence: GPL2
 # Provided 'as is', use at your own risk
-# Created: 2012-12-02
-# Last changed:  2012-12-02
 */
 
 #include <R.h>
