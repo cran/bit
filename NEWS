@@ -1,3 +1,13 @@
+        CHANGES IN bit VERSION 4.0.4
+
+USER VISIBLE CHANGES
+
+    o copy() and reverse() have been renamed to 
+    copy_vector() and reverse_vector() to avoid
+    naming conflict with data.table
+
+
+
         CHANGES IN bit VERSION 4.0.3
 
 BUG FIXES

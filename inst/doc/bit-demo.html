@@ -401,11 +401,41 @@ object.size(w1)/n
 x &lt;- ff(vmode=&quot;single&quot;, length=n)
 x[1:1000] &lt;- runif(1000)
 lapply(chunk(x, length.out = 10), function(i)sum(x[as.hi(b1, range=i)]))
+#&gt; $`1:10000000`
+#&gt; [1] 9.760941
+#&gt; 
+#&gt; $`10000001:20000000`
+#&gt; [1] 0
+#&gt; 
+#&gt; $`20000001:30000000`
+#&gt; [1] 0
+#&gt; 
+#&gt; $`30000001:40000000`
+#&gt; [1] 0
+#&gt; 
+#&gt; $`40000001:50000000`
+#&gt; [1] 0
+#&gt; 
+#&gt; $`50000001:60000000`
+#&gt; [1] 0
+#&gt; 
+#&gt; $`60000001:70000000`
+#&gt; [1] 0
+#&gt; 
+#&gt; $`70000001:80000000`
+#&gt; [1] 0
+#&gt; 
+#&gt; $`80000001:90000000`
+#&gt; [1] 0
+#&gt; 
+#&gt; $`90000001:100000000`
+#&gt; [1] 0
 </code></pre>
 
 <p>and wrap-up</p>
 
 <pre><code class="r">delete(x)
+#&gt; [1] TRUE
 rm(x, b1, b2, w1, w2, n)
 </code></pre>
 

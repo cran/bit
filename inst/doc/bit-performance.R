@@ -2,6 +2,7 @@
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 require(bit)
 require(microbenchmark)
+# rmarkdown::render("vignettes/bit-performance.Rmd")
 # these are the real settings for the performance vignette
 times <- 5
 Domain <- c(small=1e3, big=1e6)

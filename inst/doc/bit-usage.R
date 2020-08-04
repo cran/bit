@@ -3,6 +3,7 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 require(bit)
 .ff.version <- try(packageVersion("ff"), silent = TRUE)
 .ff.is.available <- !inherits(.ff.version, "try-error") && .ff.version >= "4.0.0" && require(ff)
+# rmarkdown::render("vignettes/bit-usage.Rmd")
 # devtools::build_vignettes()
 
 ## -----------------------------------------------------------------------------
@@ -180,15 +181,15 @@ sapply(chunk(b, by=3e5, method="seq"), function(i)summary(b, range=i))
 sapply(chunk(b, by=3e5), function(i)summary(b, range=i))
 
 ## ---- eval=.ff.is.available, message=FALSE------------------------------------
-#  x <- ff(vmode="single", length=length(b))   # create a huge ff vector
-#  x[as.hi(b)] <- runif(sum(b))      # replace some numbers at filtered positions
-#  summary(x[])
+x <- ff(vmode="single", length=length(b))   # create a huge ff vector
+x[as.hi(b)] <- runif(sum(b))      # replace some numbers at filtered positions
+summary(x[])
 
 ## ---- eval=.ff.is.available---------------------------------------------------
-#  sapply(chunk(x, by=3e5), function(i)summary(x[i]))
+sapply(chunk(x, by=3e5), function(i)summary(x[i]))
 
 ## ---- eval=.ff.is.available---------------------------------------------------
-#  sapply(chunk(x, by=3e5), function(i)summary(x[as.hi(b, range=i)]))
+sapply(chunk(x, by=3e5), function(i)summary(x[as.hi(b, range=i)]))
 
 ## -----------------------------------------------------------------------------
 set.seed(1); n <- 9

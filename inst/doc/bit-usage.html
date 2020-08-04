@@ -698,27 +698,27 @@ min.booltype(c(FALSE,TRUE))
 <pre><code class="r">b &lt;- as.bit(sample(c(FALSE, TRUE), 1e6, TRUE))
 summary(b,range=c(1,3e5))
 #&gt;  FALSE   TRUE   Min.   Max. 
-#&gt; 150152 149848      2 300000
+#&gt; 150256 149744      4 300000
 </code></pre>
 
 <p>and analyzing all such chunks</p>
 
 <pre><code class="r">sapply(chunk(b, by=3e5, method=&quot;seq&quot;), function(i)summary(b, range=i))
 #&gt;       1:300000 300001:600000 600001:900000 900001:1000000
-#&gt; FALSE   150152        149998        150212          49826
-#&gt; TRUE    149848        150002        149788          50174
-#&gt; Min.         2        300001        600001         900006
-#&gt; Max.    300000        599999        900000        1000000
+#&gt; FALSE   150256        149862        150197          50265
+#&gt; TRUE    149744        150138        149803          49735
+#&gt; Min.         4        300003        600002         900002
+#&gt; Max.    300000        599998        899996         999999
 </code></pre>
 
 <p>or better balanced</p>
 
 <pre><code class="r">sapply(chunk(b, by=3e5), function(i)summary(b, range=i))
 #&gt;       1:250000 250001:500000 500001:750000 750001:1000000
-#&gt; FALSE   125201        125029        124940         125018
-#&gt; TRUE    124799        124971        125060         124982
-#&gt; Min.         2        250002        500001         750001
-#&gt; Max.    250000        500000        750000        1000000
+#&gt; FALSE   125135        124897        125194         125354
+#&gt; TRUE    124865        125103        124806         124646
+#&gt; Min.         4        250001        500005         750001
+#&gt; Max.    250000        499998        750000         999999
 </code></pre>
 
 <p>The real use-case for chunking is ff objects, where instead of processing huge objects at once</p>
@@ -726,16 +726,32 @@ summary(b,range=c(1,3e5))
 <pre><code class="r">x &lt;- ff(vmode=&quot;single&quot;, length=length(b))   # create a huge ff vector
 x[as.hi(b)] &lt;- runif(sum(b))      # replace some numbers at filtered positions
 summary(x[])
+#&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#&gt;  0.0000  0.0000  0.0000  0.2498  0.4996  1.0000
 </code></pre>
 
 <p>we can process the ff vector in chunks </p>
 
 <pre><code class="r">sapply(chunk(x, by=3e5), function(i)summary(x[i]))
+#&gt;          1:250000 250001:500000 500001:750000 750001:1000000
+#&gt; Min.    0.0000000  0.0000000000     0.0000000      0.0000000
+#&gt; 1st Qu. 0.0000000  0.0000000000     0.0000000      0.0000000
+#&gt; Median  0.0000000  0.0007963628     0.0000000      0.0000000
+#&gt; Mean    0.2502720  0.2499065427     0.2496453      0.2494940
+#&gt; 3rd Qu. 0.4999921  0.5001179874     0.4988354      0.4992141
+#&gt; Max.    0.9999930  0.9999995828     0.9999888      0.9999956
 </code></pre>
 
 <p>and even can process a bit-filtered ff vector in chunks </p>
 
 <pre><code class="r">sapply(chunk(x, by=3e5), function(i)summary(x[as.hi(b, range=i)]))
+#&gt;             1:250000 250001:500000 500001:750000 750001:1000000
+#&gt; Min.    2.003042e-06  1.240987e-06  8.684583e-08   3.883149e-06
+#&gt; 1st Qu. 2.508616e-01  2.494814e-01  2.500706e-01   2.505730e-01
+#&gt; Median  5.007221e-01  4.997281e-01  4.996362e-01   5.005408e-01
+#&gt; Mean    5.010852e-01  4.994016e-01  5.000667e-01   5.004052e-01
+#&gt; 3rd Qu. 7.519348e-01  7.493132e-01  7.503459e-01   7.490826e-01
+#&gt; Max.    9.999930e-01  9.999996e-01  9.999888e-01   9.999956e-01
 </code></pre>
 
 <hr/>
@@ -871,13 +887,13 @@ summary(x[])
 <tr>
 <td align="left"><code>rev</code></td>
 <td align="left"><code>rev(bit)</code></td>
-<td align="left"><code>reverse</code></td>
+<td align="left"><code>reverse_vector</code></td>
 <td align="left"></td>
 </tr>
 <tr>
 <td align="left"><code>-rev</code></td>
 <td align="left"></td>
-<td align="left"><code>copy(revx=TRUE)</code></td>
+<td align="left"><code>copy_vector(revx=TRUE)</code></td>
 <td align="left"></td>
 </tr>
 <tr>
