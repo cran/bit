@@ -1,4 +1,4 @@
-633e8c3cbbfef177568944df35dcb0cc *DESCRIPTION
+d7b8e7bb416f0b751d063616c2bc062a *DESCRIPTION
 b0a0eebac0d76e578fac9bde35d49f64 *NAMESPACE
 698da36066554548b513f18800b0e5e6 *NEWS
 76f5fcd6a95223787e30b76d043e8eb5 *R/attrutil.R
@@ -90,7 +90,7 @@ b09695b660de56b2d8e2af3997a549c7 *man/str.bitwhich.Rd
 2739392830832fa0939962d19cf5d58d *man/xor.Rd
 a3f9c01d8cf7aca9804bcca0aa620d6e *src/Makevars
 d792a6832ff855da900e653b34766a53 *src/attrutil.c
-75c0b7f942806eaadc2db404f31e1b36 *src/bit.c
+061510ea7963fd653297d97e8069fa01 *src/bit.c
 25ce22b5cca82ea1e06f7827381c3e58 *src/chunkutil.c
 8ea162888beb37364b277f5566b0cf3f *src/clone.c
 f6386837c98093095472f290930f1ab1 *src/init.c
