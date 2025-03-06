@@ -21,11 +21,11 @@ Creating new bit or bitwhich by reversing such vectors
 }
 \examples{
 
- rev(as.bit(c(FALSE,TRUE)))
- rev(as.bitwhich(c(FALSE,TRUE)))
+ rev(as.bit(c(FALSE, TRUE)))
+ rev(as.bitwhich(c(FALSE, TRUE)))
 }
 \seealso{
-\code{\link{rev}}, \code{\link{bit}} , \code{\link{bitwhich}}
+\code{\link[=rev]{rev()}}, \code{\link[=bit]{bit()}} , \code{\link[=bitwhich]{bitwhich()}}
 }
 \author{
 Jens Oehlschlägel

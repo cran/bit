@@ -17,11 +17,11 @@ a sorted vector
 }
 \description{
 In one pass over the vector \code{NA}s are handled according to parameter
-\code{na.last} by \code{\link{range_sortna}}, then, if the vector is unsorted, 
+\code{na.last} by \code{\link[=range_sortna]{range_sortna()}}, then, if the vector is unsorted,
 threeway quicksort is invoked.
 }
 \examples{
-countsort(c(2L,0L,1L,NA,2L))
-countsort(c(2L,0L,1L,NA,2L), na.last=TRUE)
-countsort(c(2L,0L,1L,NA,2L), na.last=FALSE)
+countsort(c(2L, 0L, 1L, NA, 2L))
+countsort(c(2L, 0L, 1L, NA, 2L), na.last=TRUE)
+countsort(c(2L, 0L, 1L, NA, 2L), na.last=FALSE)
 }

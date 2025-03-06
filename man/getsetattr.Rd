@@ -33,22 +33,15 @@ Function \code{setattr} sets a singe attribute and function
 \details{
 The attributes of 'x' are changed in place without copying x. function
 \code{setattributes} does only change the named attributes, it does not
-delete the non-names attributes like \code{\link{attributes}} does.
+delete the non-names attributes like \code{\link[=attributes]{attributes()}} does.
 }
-\section{Functions}{
-\itemize{
-\item \code{setattr()}: 
-
-\item \code{setattributes()}: 
-
-}}
 \examples{
 
   x <- as.single(runif(10))
   attr(x, "Csingle")
 
-  f <- function(x)attr(x, "Csingle") <- NULL
-  g <- function(x)setattr(x, "Csingle", NULL)
+  f <- function(x) attr(x, "Csingle") <- NULL
+  g <- function(x) setattr(x, "Csingle", NULL)
 
   f(x)
   x
@@ -60,7 +53,7 @@ delete the non-names attributes like \code{\link{attributes}} does.
   # restart R
   library(bit)
 
-  mysingle <- function(length = 0){
+  mysingle <- function(length = 0) {
     ret <- double(length)
     setattr(ret, "Csingle", TRUE)
     ret
@@ -76,7 +69,8 @@ delete the non-names attributes like \code{\link{attributes}} does.
   memory.size(max=TRUE)
 
   # look at the memory limits
-  # on my win32 machine the first line fails beause of not enough RAM, the second works
+  # on my win32 machine the first line fails
+  #   because of not enough RAM, the second works
   x <- single(1e8)
   x <- mysingle(1e8)
 
@@ -94,11 +88,11 @@ delete the non-names attributes like \code{\link{attributes}} does.
   # restart R
   library(bit)
 
-  simplefactor <- function(n){
+  simplefactor <- function(n) {
     factor(rep(1:2, length.out=n))
   }
 
-  mysimplefactor <- function(n){
+  mysimplefactor <- function(n) {
     ret <- rep(1:2, length.out=n)
     setattr(ret, "levels", as.character(1:2))
     setattr(ret, "class", "factor")
@@ -109,7 +103,7 @@ delete the non-names attributes like \code{\link{attributes}} does.
 
   system.time(x <- mysimplefactor(1e7))
   memory.size(max=TRUE)
-  system.time(setattr(x, "levels", c("a","b")))
+  system.time(setattr(x, "levels", c("a", "b")))
   memory.size(max=TRUE)
   x[1:4]
   memory.size(max=TRUE)
@@ -118,7 +112,7 @@ delete the non-names attributes like \code{\link{attributes}} does.
 
   system.time(x <- simplefactor(1e7))
   memory.size(max=TRUE)
-  system.time(levels(x) <- c("x","y"))
+  system.time(levels(x) <- c("x", "y"))
   memory.size(max=TRUE)
   x[1:4]
   memory.size(max=TRUE)
@@ -135,7 +129,7 @@ Writing R extensions -- System and foreign language interfaces
 Development)
 }
 \seealso{
-\code{\link{attr}} \code{\link{unattr}}
+\code{\link[=attr]{attr()}} \code{\link[=unattr]{unattr()}}
 }
 \author{
 Jens Oehlschlägel

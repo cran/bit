@@ -16,7 +16,7 @@ a reversed vector
 This is substantially faster than \code{which.max(is.na(x))}
 }
 \examples{
-x <- c(FALSE,NA,TRUE)
+x <- c(FALSE, NA, TRUE)
 firstNA(x)
 reverse_vector(x)
 \dontrun{
@@ -26,5 +26,5 @@ system.time(reverse_vector(x))
 }
 }
 \seealso{
-\code{\link{which.max}}, \code{\link{is.na}}, \code{\link{anyNA}}, \code{\link{anyDuplicated}}, \code{\link{bit_anyDuplicated}}
+\code{\link[=which.max]{which.max()}}, \code{\link[=is.na]{is.na()}}, \code{\link[=anyNA]{anyNA()}}, \code{\link[=anyDuplicated]{anyDuplicated()}}, \code{\link[=bit_anyDuplicated]{bit_anyDuplicated()}}
 }
